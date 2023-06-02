@@ -47,10 +47,10 @@ export default function CurrencySymbol({ heading, teamConfig }) {
       </FormControl>
 
       {/* to show individual information title */}
-      <Container sx={{ mt: 4 }} disableGutters>
+      {/* <Container sx={{ mt: 4 }} disableGutters>
         <Typography variant="h6">Individual Settings</Typography>
         <Typography>There can be only one setting for all users in your company</Typography>
-      </Container>
+      </Container> */}
     </Box>
   );
 }

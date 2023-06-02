@@ -42,7 +42,7 @@ export default function UserSettings({ user }) {
           </Typography>
           <Link
             underline="hover"
-            to="/dashboard/settings"
+            href="/dashboard/setting"
             sx={{ pr: 1, cursor: 'pointer', justifyContent: 'flex-start' }}
           >
             {formatSettingsValue(setKey)}

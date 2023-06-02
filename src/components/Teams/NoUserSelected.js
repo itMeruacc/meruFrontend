@@ -28,7 +28,7 @@ export default function NoUserSelected() {
           height: '100%',
         }}
       >
-        <Box component="img" src="/svgs/project.svg" sx={{ width: 100, height: 70, backgroundColor: 'white' }} />
+        <Box component="img" src="/svgs/member.svg" sx={{ width: 100, height: 70, backgroundColor: 'white' }} />
         <Typography variant="h5">No User Selected</Typography>
       </Paper>
     </Box>
