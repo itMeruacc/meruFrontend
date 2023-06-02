@@ -21,7 +21,7 @@ const modalStyle = {
   p: 4,
 };
 
-export default function ChangeClient({ project }) {
+export default function ChangeProjectLeader({ project }) {
   const [projectLeader, setprojectLeader] = useState(null);
   const [userOptions, setuserOptions] = useState([]);
   const [open, setopen] = useState(false);
@@ -93,7 +93,7 @@ export default function ChangeClient({ project }) {
       >
         <Box sx={modalStyle}>
           <Typography variant="h6" component="h2">
-            Change Client
+            Change Project Leader
           </Typography>
           <Autocomplete
             disablePortal

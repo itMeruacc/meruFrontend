@@ -17,6 +17,7 @@ import SavedReports from './pages/SavedReports';
 import DesktopLogin from './pages/DesktopLogin';
 import DownloadReport from './pages/DownloadReport';
 import Profile from './pages/Profile';
+import Reset from './pages/Reset';
 
 // ----------------------------------------------------------------------
 
@@ -57,6 +58,7 @@ export default function Router() {
 
         { path: '/reports/sharedReports/:id', element: <SavedReports /> },
         { path: '/auth/:token', element: <DesktopLogin /> },
+        { path: '/passwordReset/:id/:token', element: <Reset /> },
       ],
     },
     {

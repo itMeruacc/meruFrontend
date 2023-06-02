@@ -69,7 +69,16 @@ export default function Activity({ act, date, id }) {
       })
       .then((res) => {
         if (res.status === 200) {
-          enqueueSnackbar('Activity deleted', { variant: 'success' });
+          enqueueSnackbar(
+            'Activity deleted',
+            { variant: 'success' },
+            {
+              anchorOrigin: {
+                vertical: 'bottom',
+                horizontal: 'left',
+              },
+            }
+          );
 
           // refresh activities
           axios
@@ -85,7 +94,16 @@ export default function Activity({ act, date, id }) {
       })
       // eslint-disable-next-line no-unused-vars
       .catch((error) => {
-        enqueueSnackbar('Some Error Occured', { variant: 'error' });
+        enqueueSnackbar(
+          'Some Error Occured',
+          { variant: 'error' },
+          {
+            anchorOrigin: {
+              vertical: 'bottom',
+              horizontal: 'left',
+            },
+          }
+        );
       });
   };
 

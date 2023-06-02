@@ -111,11 +111,29 @@ function Row(props) {
   const handleDelete = () => {
     try {
       axios.delete(`${axios.defaults.baseURL}report/delete/${row.url}`).then((res) => {
-        enqueueSnackbar('Report deleted', { variant: 'success' });
+        enqueueSnackbar(
+          'Report deleted',
+          { variant: 'success' },
+          {
+            anchorOrigin: {
+              vertical: 'bottom',
+              horizontal: 'left',
+            },
+          }
+        );
         axios.get(`report/saved`).then((res) => setRowsData(res.data.data));
       });
     } catch (err) {
-      enqueueSnackbar(err.message, { variant: 'error' });
+      enqueueSnackbar(
+        err.message,
+        { variant: 'error' },
+        {
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'left',
+          },
+        }
+      );
     }
   };
   const handleClickSave = async () => {
@@ -133,11 +151,29 @@ function Row(props) {
 
       const savedData = await axios.patch('/report/edit', data);
       if (savedData.status === 200) {
-        enqueueSnackbar('Report saved', { variant: 'success' });
+        enqueueSnackbar(
+          'Report saved',
+          { variant: 'success' },
+          {
+            anchorOrigin: {
+              vertical: 'bottom',
+              horizontal: 'left',
+            },
+          }
+        );
       }
     } catch (err) {
       console.log(err);
-      enqueueSnackbar(err.message, { variant: err.message });
+      enqueueSnackbar(
+        err.message,
+        { variant: err.message },
+        {
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'left',
+          },
+        }
+      );
     }
   };
   const handleChange1 = (event) => {
@@ -208,7 +244,16 @@ function Row(props) {
             sx={{ fontSize: 'medium', cursor: 'pointer' }}
             onClick={() => {
               navigator.clipboard.writeText(`${window.location.origin}/reports/sharedReports/${row.url}`);
-              enqueueSnackbar('Link copied', { variant: 'success' });
+              enqueueSnackbar(
+                'Link copied',
+                { variant: 'success' },
+                {
+                  anchorOrigin: {
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  },
+                }
+              );
             }}
           />
         </TableCell>

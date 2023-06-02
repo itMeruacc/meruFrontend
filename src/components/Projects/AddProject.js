@@ -25,15 +25,16 @@ export default function AddProject() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (value === '' || value === null || value === undefined) {
-      sethelperText('Enter a Value');
+    const inputValue = value.trim();
+    if (inputValue === '' || inputValue === null || inputValue === undefined) {
+      sethelperText('Enter a name for the project');    
       seterror(true);
+      setvalue('');
     } else {
       setloading(true);
       // call api here
       try {
-        axios.post(`/project`, { name: value }).then((res) => {
+        axios.post(`/project`, { name: inputValue }).then((res) => {
           setloading(false);
           setvalue('');
           if (res.status === 201) {

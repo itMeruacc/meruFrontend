@@ -48,7 +48,16 @@ export default function Preview(props) {
       })
       .then((res) => {
         if (res.status === 200) {
-          enqueueSnackbar('Screenshot deleted', { variant: 'success' });
+          enqueueSnackbar(
+            'Screenshot deleted',
+            { variant: 'success' },
+            {
+              anchorOrigin: {
+                vertical: 'bottom',
+                horizontal: 'left',
+              },
+            }
+          );
 
           // refresh activities
           axios
@@ -60,10 +69,29 @@ export default function Preview(props) {
             .then((res) => {
               setActivities(res.data.data, false);
             });
-        } else enqueueSnackbar('Some Error Occured', { variant: 'error' });
+        } else
+          enqueueSnackbar(
+            'Some Error Occured',
+            { variant: 'error' },
+            {
+              anchorOrigin: {
+                vertical: 'bottom',
+                horizontal: 'left',
+              },
+            }
+          );
       })
       .catch((error) => {
-        enqueueSnackbar('Some Error Occured', { variant: 'error' });
+        enqueueSnackbar(
+          'Some Error Occured',
+          { variant: 'error' },
+          {
+            anchorOrigin: {
+              vertical: 'bottom',
+              horizontal: 'left',
+            },
+          }
+        );
       });
   };
   // console.log(props.selectedSs);

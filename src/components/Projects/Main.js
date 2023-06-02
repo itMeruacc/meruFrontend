@@ -138,6 +138,7 @@ export default function Main({ projectId, setprojectId }) {
                 >
                   <input
                     ref={inputRef}
+                    onMouseDown={(e) => e.preventDefault()}
                     onChange={(e) => setName(e.target.value)}
                     type="text"
                     style={input}

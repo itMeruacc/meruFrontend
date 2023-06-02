@@ -4,7 +4,18 @@ import { useSnackbar } from 'notistack';
 import axios from 'axios';
 
 // mui
-import { Box, Typography, Divider, Paper, TextField, FormControl, Autocomplete, MenuItem, Select } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Divider,
+  Paper,
+  TextField,
+  FormControl,
+  Autocomplete,
+  MenuItem,
+  Select,
+  InputLabel,
+} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
 // components
@@ -21,7 +32,14 @@ export default function Profile() {
 
   const handleTimeZoneChange = (event) => {
     axios.patch('timezone', { timeZone: event.target.value }).then((res) => {
-      enqueueSnackbar('Timezone updated', { variant: 'success' });
+      enqueueSnackbar('Timezone updated', {
+        variant: 'success',
+
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal: 'left',
+        },
+      });
       //   local state
       settimeZone(event.target.value);
       // update timezone in localStorage
@@ -56,7 +74,7 @@ export default function Profile() {
                 id="filled-required"
                 label="First Name"
                 disabled
-                value={`${ud.firstName} ${ud.lastName}`}
+                value={`${ud.firstName}`}
               />
 
               {/* last name */}
@@ -66,7 +84,7 @@ export default function Profile() {
                 id="filled-required"
                 label="Last Name"
                 disabled
-                value={`${ud.firstName} ${ud.lastName}`}
+                value={`${ud.lastName}`}
               />
 
               {/* email */}
@@ -80,13 +98,22 @@ export default function Profile() {
               />
 
               {/* timezone */}
-              <Select sx={{ width: 300, mt: 3 }} value={ud.accountInfo.timeZone} onChange={handleTimeZoneChange}>
-                {timeZones.map((tz, i) => (
-                  <MenuItem key={i} value={tz.name}>
-                    {tz.name}
-                  </MenuItem>
-                ))}
-              </Select>
+              <FormControl sx={{ mt: 3 }}>
+                <InputLabel id="timezone">Timezone</InputLabel>
+                <Select
+                  label="Timezone"
+                  labelId="timezone"
+                  sx={{ width: 300 }}
+                  value={ud.accountInfo.timeZone}
+                  onChange={handleTimeZoneChange}
+                >
+                  {timeZones.map((tz, i) => (
+                    <MenuItem key={i} value={tz.name}>
+                      {tz.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
               {/* date format */}
               {/* <Autocomplete

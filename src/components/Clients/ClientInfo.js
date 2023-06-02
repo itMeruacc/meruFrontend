@@ -9,6 +9,11 @@ import { Box } from '@mui/system';
 import { Typography, Tooltip, Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 // own components
 
@@ -36,6 +41,7 @@ export default function ClientInfo({ client, setclientId }) {
   // store
   const setClients = useStore((state) => state.setClients);
   const [name, setName] = useState(client.client.name);
+  const [deleteOpen, setdeleteOpen] = useState(false);
 
   // to make the form focused
   const inputRef = useRef();
@@ -47,6 +53,7 @@ export default function ClientInfo({ client, setclientId }) {
         console.log(res);
         axios.get(`/client`).then((res) => {
           setClients(res.data.data, false);
+          inputRef.current.blur();
         });
       });
     } catch (error) {
@@ -73,20 +80,36 @@ export default function ClientInfo({ client, setclientId }) {
     }
   };
 
+  const handleNameChange = (e) => {
+    const inputValue = e.target.value;
+    console.log(inputValue);
+    const regex = /^[A-Za-z]+$/;
+    if (regex.test(inputValue) || inputValue === '') {
+      setName(inputValue);
+    }
+  };
+
   return (
     <>
       <Box>
         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
           {/* Client Name components */}
           <form
-            onBlur={(e) => {
-              handleEditSubmit(e);
-              inputRef.current.blur();
-            }}
+            // onBlur={(e) => {
+            //   handleEditSubmit(e);
+            // }}
             onSubmit={handleEditSubmit}
             style={{ display: 'inline' }}
           >
-            <input ref={inputRef} onChange={(e) => setName(e.target.value)} type="text" style={input} value={name} />
+            <input
+              minLength={4}
+              maxLength={10}
+              ref={inputRef}
+              onChange={(e) => handleNameChange(e)}
+              type="text"
+              style={input}
+              value={name}
+            />
           </form>
 
           {/* edit and del buttons */}
@@ -101,7 +124,7 @@ export default function ClientInfo({ client, setclientId }) {
                 />
               </Button>
             </Tooltip>
-            <Tooltip onClick={handleDelete} title="Delete Client">
+            <Tooltip onClick={() => setdeleteOpen(true)} title="Delete Client">
               <Button>
                 <DeleteIcon color="action" />
               </Button>
@@ -125,6 +148,23 @@ export default function ClientInfo({ client, setclientId }) {
           <Typography variant="h6">Created By: {client.client.createdBy.name}</Typography>
         </Box>
       </Box>
+
+      {/* delete confirmation dialog */}
+
+      <Dialog open={deleteOpen} onClose={() => setdeleteOpen(false)}>
+        <DialogTitle id="responsive-dialog-title">{'Delete Confirmation'}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Please confirm to delete the client, this cannot be reversed.</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={() => setdeleteOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleDelete} autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

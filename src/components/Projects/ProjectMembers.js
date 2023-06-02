@@ -84,6 +84,7 @@ export default function ProjectMembers({ project }) {
           </Link>
         </Box>
         <TextField
+          sx={{ mt: 1 }}
           // InputProps={{
           //   endAdornment: <SearchIcon />,
           // }}

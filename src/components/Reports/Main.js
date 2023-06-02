@@ -115,7 +115,16 @@ export default function Main() {
         setreports({ reports: res.data.data, loader: false });
       });
     } catch (err) {
-      enqueueSnackbar(err.message, { variant: 'error' });
+      enqueueSnackbar(
+        err.message,
+        { variant: 'error' },
+        {
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'left',
+          },
+        }
+      );
     }
   };
 

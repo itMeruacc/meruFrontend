@@ -4,6 +4,7 @@ import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
 // mui
 import {
+  CircularProgress,
   Link,
   Card,
   Table,
@@ -72,6 +73,7 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function Dashboard() {
+  const [loader, setloader] = useState(true);
   const [userList, setuserList] = useState([]);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
@@ -87,6 +89,7 @@ export default function Dashboard() {
       .then((res) => {
         setuserList(res.data.data);
         console.log(res.data.data);
+        setloader(false);
       })
       .catch((err) => {
         if (axios.isCancel(err)) {
@@ -127,7 +130,8 @@ export default function Dashboard() {
 
     let interval = seconds / 31536000;
     if (interval > 1) {
-      return `${Math.floor(interval)} years ago`;
+      // years
+      return `Offline`;
     }
     interval = seconds / 2592000;
     if (interval > 1) {
@@ -233,7 +237,7 @@ export default function Dashboard() {
                   <TableBody>
                     <TableRow>
                       <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <SearchNotFound searchQuery={filterName} />
+                        {loader ? <CircularProgress /> : <SearchNotFound searchQuery={filterName} />}
                       </TableCell>
                     </TableRow>
                   </TableBody>

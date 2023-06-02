@@ -203,7 +203,14 @@ export default function ReportsOptions({ reports, options }) {
   //       writeFile(wb, `${name}.xlsx`);
   //     } catch (err) {
   //       console.log(err);
-  //       enqueueSnackbar(err.message, { variant: 'error' });
+  //       enqueueSnackbar(err.message, { variant: 'error' },
+  // {
+  //   anchorOrigin: {
+  //     vertical: 'bottom',
+  //     horizontal: 'left',
+  //   },
+  // }
+  // );
   //     }
   //   };
 
@@ -309,7 +316,16 @@ export default function ReportsOptions({ reports, options }) {
     });
     if (share) {
       navigator.clipboard.writeText(`${window.location.origin}/reports/sharedReports/${url}`);
-      enqueueSnackbar('link copied', { variant: 'success' });
+      enqueueSnackbar(
+        'link copied',
+        { variant: 'success' },
+        {
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'left',
+          },
+        }
+      );
     }
   };
 
@@ -335,7 +351,16 @@ export default function ReportsOptions({ reports, options }) {
         });
     } catch (err) {
       console.log(err);
-      enqueueSnackbar(err.message, { variant: 'error' });
+      enqueueSnackbar(
+        err.message,
+        { variant: 'error' },
+        {
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'left',
+          },
+        }
+      );
     }
   };
 

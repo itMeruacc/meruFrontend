@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
+import { useSnackbar } from 'notistack';
 import { Stack, IconButton, InputAdornment } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // components
@@ -15,14 +16,15 @@ import { FormProvider, RHFTextField } from '../../../components/hook-form';
 // ----------------------------------------------------------------------
 
 export default function RegisterForm() {
+  const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
 
   const RegisterSchema = Yup.object().shape({
-    firstName: Yup.string().required('First name required'),
-    lastName: Yup.string().required('Last name required'),
-    email: Yup.string().email('Email must be a valid email address').required('Email is required'),
+    firstName: Yup.string().trim().required('First name required'),
+    lastName: Yup.string().trim().required('Last name required'),
+    email: Yup.string().trim().email('Email must be a valid email address').required('Email is required'),
     password: Yup.string()
       .required('Password is required')
       .min(8, 'Password is too short - should be 8 chars minimum.'),
@@ -51,10 +53,30 @@ export default function RegisterForm() {
       axios.post('/register', { ...data, role: 'employee' }).then((res) => {
         console.log(res);
         navigate('/login', { replace: true });
+        enqueueSnackbar(
+          'You are registered, Please log in to continue',
+          { variant: 'Success' },
+          {
+            anchorOrigin: {
+              vertical: 'top',
+              horizontal: 'left',
+            },
+          }
+        );
       });
     } catch (error) {
       if (error.response) {
         console.log(error.response);
+        enqueueSnackbar(
+          error.response,
+          { variant: 'error' },
+          {
+            anchorOrigin: {
+              vertical: 'bottom',
+              horizontal: 'left',
+            },
+          }
+        );
       }
     }
   };
