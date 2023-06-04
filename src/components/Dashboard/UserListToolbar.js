@@ -36,7 +36,12 @@ UserListToolbar.propTypes = {
 
 export default function UserListToolbar({ filterName, onFilterName }) {
   return (
-    <RootStyle>
+    <RootStyle
+      sx={{
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+      }}
+    >
       <SearchStyle
         value={filterName}
         onChange={onFilterName}

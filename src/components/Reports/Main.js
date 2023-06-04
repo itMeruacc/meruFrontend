@@ -106,10 +106,10 @@ export default function Main() {
       console.log(options);
 
       // to send to save report module
-      setsaveReportOptions(options);
+      // setsaveReportOptions(options);
 
       // call reports here
-      console.log(dayjs(-1));
+      // console.log(dayjs(-1));
 
       axios.post('/report', { ...options }).then((res) => {
         setreports({ reports: res.data.data, loader: false });

@@ -20,10 +20,7 @@ const ChangePassword = () => {
   const ResetSchema = Yup.object().shape({
     newPassword: Yup.string()
       .required('Password is required')
-      .matches(
-        /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
-        'Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character'
-      ),
+      .min(8, 'Password is too short - should be 8 chars minimum.'),
     confirmPassword: Yup.string()
       .required('Password is required')
       .oneOf([Yup.ref('newPassword')], 'Passwords does not match'),

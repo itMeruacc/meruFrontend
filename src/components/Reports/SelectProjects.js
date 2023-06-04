@@ -37,7 +37,8 @@ export default function SelectEmployees({ setprojects }) {
       <Autocomplete
         multiple
         options={options}
-        getOptionLabel={(option) => `${option.name} ** ${option.client?.name ?? 'No Client'} `}
+        // getOptionLabel={(option) => `${option.name} ** ${option.client?.name ?? 'No Client'} `}
+        getOptionLabel={(option) => `${option.name}`}
         filterSelectedOptions
         onChange={(e, value) => {
           if (value.length !== 0) setprojects(value);

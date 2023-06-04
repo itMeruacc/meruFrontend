@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 // @mui
-import { Avatar, IconButton } from '@mui/material';
+import { Avatar, IconButton, Tooltip } from '@mui/material';
 
 // mocks_
 import account from '../../_mock/account';
@@ -36,15 +36,17 @@ export default function AccountPopover() {
 
   return (
     <>
-      <IconButton
-        ref={anchorRef}
-        onClick={() => navigate('/dashboard/profile')}
-        sx={{
-          p: 0,
-        }}
-      >
-        <Avatar src={account.photoURL} alt="photoURL" />
-      </IconButton>
+      <Tooltip title="Profile">
+        <IconButton
+          ref={anchorRef}
+          onClick={() => navigate('/dashboard/profile')}
+          // sx={{
+          //   p: 0,
+          // }}
+        >
+          <Avatar src={account.photoURL} alt="photoURL" />
+        </IconButton>
+      </Tooltip>
     </>
   );
 }

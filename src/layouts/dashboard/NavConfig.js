@@ -9,6 +9,7 @@ const getIcon = (name) => <Iconify icon={name} width={22} height={22} />;
 let ud = {
   _id: 'moveto/404',
 };
+console.log(JSON.stringify(localStorage.ud));
 if (localStorage.ud) {
   ud = JSON.parse(localStorage.ud);
 }

@@ -7,13 +7,12 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import {
+  FormControl,
   Link,
   Stack,
   IconButton,
   InputAdornment,
-  Snackbar,
   Modal,
-  Checkbox,
   TextField,
   Box,
   Button,
@@ -33,6 +32,18 @@ import { FormProvider, RHFTextField, RHFCheckbox } from '../../../components/hoo
 
 // ----------------------------------------------------------------------
 
+const modalStyle = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  bgcolor: 'background.paper',
+  width: 500,
+  boxShadow: 24,
+  p: 2,
+  borderRadius: 2,
+};
+
 export default function LoginForm() {
   const navigate = useNavigate();
 
@@ -42,9 +53,15 @@ export default function LoginForm() {
   // snackbar
   const { enqueueSnackbar } = useSnackbar();
 
+  const [forgotEmail, setforgotEmail] = useState('');
+
   const LoginSchema = Yup.object().shape({
     email: Yup.string().email('Email must be a valid email address').required('Email is required'),
     password: Yup.string().required('Password is required'),
+  });
+
+  const ForgotSchema = Yup.object().shape({
+    email: Yup.string().email('Email must be a valid email address').required('Email is required'),
   });
 
   const defaultValues = {
@@ -53,19 +70,16 @@ export default function LoginForm() {
     remember: true,
   };
 
+  const defaultValues2 = {
+    email: '',
+  };
+
   const methods = useForm({
     resolver: yupResolver(LoginSchema),
     defaultValues,
   });
 
   const {
-    errors,
-    dirty,
-    isValid,
-    touched,
-    values,
-    setErrors,
-    // getFieldProps,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
@@ -90,24 +104,29 @@ export default function LoginForm() {
       });
   };
 
+  const handleClose = () => {
+    setopen(false);
+  };
+
   // Forgot Password Call
   const forgot = async () => {
-    // await axios
-    //   .post('/forgot', {
-    //     email: { ...getFieldProps('email') }.value,
-    //   })
-    //   .then((res) => {
-    //     enqueueSnackbar(res.data.message, {
-    //       variant: 'success',
-    //     });
-    //     handleClose();
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //     enqueueSnackbar(err.message, {
-    //       variant: 'info',
-    //     });
-    //   });
+    console.log(forgotEmail);
+    await axios
+      .post('/forgot', {
+        email: forgotEmail,
+      })
+      .then((res) => {
+        enqueueSnackbar(res.data.message, {
+          variant: 'success',
+        });
+        handleClose();
+      })
+      .catch((err) => {
+        console.log(err);
+        enqueueSnackbar(err.message, {
+          variant: 'info',
+        });
+      });
   };
 
   return (
@@ -145,82 +164,30 @@ export default function LoginForm() {
       </FormProvider>
 
       {/* forgot pass modal */}
-      {/* <Modal
-        open={open}
-        onClose={() => setopen(false)}
-        sx={{
-          border: 'none',
-        }}
-      >
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 600,
-            bgcolor: '#fff',
-            borderRadius: 2,
-            border: 'none',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            '@media (max-width: 600px)': {
-              maxWidth: '80%',
-            },
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              bgcolor: 'primary.lighter',
-              p: 2,
-            }}
-          >
-            <Typography variant="h4" color="primary">
-              Enter Your Email
-            </Typography>
-            <IconButton onClick={() => setopen(false)}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
-          <Divider />
-          <Box
-            sx={{
-              px: 2,
-              py: 1,
-            }}
-          >
-            <RHFTextField name="forgot-email" label="Email address" />
-          </Box>
+      <Modal open={open} onClose={() => setopen(false)}>
+        <Box sx={modalStyle}>
+          <Typography sx={{ mb: 2 }} id="modal-modal-title" variant="h5" component="h2">
+            Please enter your email.
+          </Typography>
+          <FormControl fullWidth>
+            <TextField
+              value={forgotEmail}
+              onChange={(e, value) => setforgotEmail(e.target.value)}
+              fullWidth
+              type="email"
+              color="primary"
+              placeholder="Email"
+            />
 
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'end',
-              bgcolor: 'grey.200',
-              p: 2,
-            }}
-          >
-            <Button
-              variant="contained"
-              color="success"
-              sx={{
-                mr: 2,
-              }}
-              onClick={forgot}
-            >
-              Confirm
-            </Button>
-            <Button variant="outlined" color="primary" onClick={() => setopen(false)}>
-              Cancel
-            </Button>
-          </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button type="submit" onClick={forgot}>
+                Confirm
+              </Button>
+              <Button onClick={() => setopen(false)}>Cancel</Button>
+            </Box>
+          </FormControl>
         </Box>
-      </Modal> */}
+      </Modal>
     </>
   );
 }
