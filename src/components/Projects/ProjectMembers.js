@@ -61,7 +61,7 @@ export default function ProjectMembers({ project }) {
     };
 
     return (
-      <Box component="div" sx={{ mt: 2, overflowY: 'auto' }} key={user._id}>
+      <Box component="div" sx={{ mt: 2 }} key={user._id}>
         <Box sx={{ display: 'flex' }}>
           <Switch onClick={(e) => editMember(e, user._id)} checked={isMember} />
           <Typography variant="h5">{user.name}</Typography>
@@ -72,8 +72,8 @@ export default function ProjectMembers({ project }) {
   }
 
   return (
-    <Box sx={{ overflowY: 'auto' }}>
-      <Box sx={{ overflow: 'auto', display: 'flex', justifyContent: 'space-between', mt: 5, mb: 1 }}>
+    <Box sx={{}}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 5, mb: 1 }}>
         <Box>
           <Typography variant="h4">Project Members</Typography>
           <Link underline="hover" sx={{ cursor: 'pointer', pr: 1 }}>
@@ -92,9 +92,11 @@ export default function ProjectMembers({ project }) {
           label="Search"
         />
       </Box>
-      {filteredUsers.map((user) => (
-        <ToggleMember key={user._id} user={user} />
-      ))}
+      <Box sx={{ maxHeight: '370px', overflow: 'auto' }}>
+        {filteredUsers.map((user) => (
+          <ToggleMember key={user._id} user={user} />
+        ))}
+      </Box>
     </Box>
   );
 }

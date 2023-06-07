@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 
 // mui components
-import { Tooltip, Button, Container, CircularProgress, Paper, Box } from '@mui/material';
+import { Tooltip, Button, Container, CircularProgress, Paper, Box, TextField } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -42,7 +42,7 @@ const mainLoader = {
   justifyContent: 'center',
 };
 const rootPaper = {
-  overflow: 'hidden',
+  overflow: 'auto',
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
@@ -136,7 +136,8 @@ export default function Main({ projectId, setprojectId }) {
                   onSubmit={handleEditSubmit}
                   style={{ display: 'inline' }}
                 >
-                  <input
+                  <TextField
+                    fullWidth
                     ref={inputRef}
                     onMouseDown={(e) => e.preventDefault()}
                     onChange={(e) => setName(e.target.value)}
