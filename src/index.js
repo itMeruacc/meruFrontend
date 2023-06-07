@@ -15,8 +15,8 @@ import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-axios.defaults.baseURL = 'http://localhost:8000/';
-// axios.defaults.baseURL = 'https://merubackend.live/';
+// axios.defaults.baseURL = 'http://localhost:8000/';
+axios.defaults.baseURL = 'https://merubackend.live/';
 axios.defaults.headers.common.Authorization = `Bearer ${localStorage['Bearer Token']}`;
 
 root.render(
