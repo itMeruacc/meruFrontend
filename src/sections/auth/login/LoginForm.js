@@ -54,6 +54,8 @@ export default function LoginForm() {
   const { enqueueSnackbar } = useSnackbar();
 
   const [forgotEmail, setforgotEmail] = useState('');
+  const [forgotEmailHelperText, setforgotEmailHelperText] = useState('');
+  const [forgotError, setforgotError] = useState(false);
 
   const LoginSchema = Yup.object().shape({
     email: Yup.string().email('Email must be a valid email address').required('Email is required'),
@@ -106,10 +108,30 @@ export default function LoginForm() {
 
   const handleClose = () => {
     setopen(false);
+    setforgotEmailHelperText('');
+    setforgotError(false);
   };
 
   // Forgot Password Call
-  const forgot = async () => {
+  const forgot = async (e) => {
+    e.preventDefault();
+    const email = forgotEmail.trim();
+    setforgotEmailHelperText('');
+    setforgotError(false);
+
+    if (email === '') {
+      setforgotError(true);
+      setforgotEmailHelperText('Please enter your email');
+      setforgotEmail('');
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setforgotError(true);
+      setforgotEmailHelperText('Please enter a valid email');
+      // setforgotEmail('');
+      return;
+    }
     console.log(forgotEmail);
     await axios
       .post('/forgot', {
@@ -118,13 +140,21 @@ export default function LoginForm() {
       .then((res) => {
         enqueueSnackbar(res.data.message, {
           variant: 'success',
+          anchorOrigin: {
+            vertical: 'top',
+            horizontal: 'left',
+          },
         });
         handleClose();
       })
       .catch((err) => {
         console.log(err);
-        enqueueSnackbar(err.message, {
-          variant: 'info',
+        enqueueSnackbar('Email not found, please enter another email', {
+          variant: 'error',
+          anchorOrigin: {
+            vertical: 'top',
+            horizontal: 'left',
+          },
         });
       });
   };
@@ -164,13 +194,16 @@ export default function LoginForm() {
       </FormProvider>
 
       {/* forgot pass modal */}
-      <Modal open={open} onClose={() => setopen(false)}>
+      <Modal open={open} onClose={handleClose}>
         <Box sx={modalStyle}>
           <Typography sx={{ mb: 2 }} id="modal-modal-title" variant="h5" component="h2">
             Please enter your email.
           </Typography>
-          <FormControl fullWidth>
+          <form>
             <TextField
+              helperText={forgotEmailHelperText}
+              error={forgotError}
+              required
               value={forgotEmail}
               onChange={(e, value) => setforgotEmail(e.target.value)}
               fullWidth
@@ -180,12 +213,12 @@ export default function LoginForm() {
             />
 
             <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button type="submit" onClick={forgot}>
+              <Button type="submit" onClick={(e) => forgot(e)}>
                 Confirm
               </Button>
-              <Button onClick={() => setopen(false)}>Cancel</Button>
+              <Button onClick={handleClose}>Cancel</Button>
             </Box>
-          </FormControl>
+          </form>
         </Box>
       </Modal>
     </>
