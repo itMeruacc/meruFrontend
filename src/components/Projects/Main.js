@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 
 // mui components
-import { Tooltip, Button, Container, CircularProgress, Paper, Box, TextField } from '@mui/material';
+import { Tooltip, Button, Container, CircularProgress, Paper, Box, TextField, useStepperContext } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -68,6 +68,8 @@ export default function Main({ projectId, setprojectId }) {
 
   // for name component
   const [name, setName] = useState(project.project.name);
+  const [nameHelperText, setnameHelperText] = useState('');
+  const [nameError, setnameError] = useState(false);
 
   // fetch the data
   useEffect(() => {
@@ -86,6 +88,12 @@ export default function Main({ projectId, setprojectId }) {
   const inputRef = useRef();
   // edit name, refresh clients in sidebar and change local state of name
   const handleEditSubmit = (e) => {
+    const value = name.trim();
+    if (value === '') {
+      setnameHelperText('Please enter a name to continue');
+      setnameError(true);
+      return;
+    }
     try {
       e.preventDefault();
       axios.patch(`/project/${project.project._id}/name`, { name }).then((res) => {
@@ -94,6 +102,8 @@ export default function Main({ projectId, setprojectId }) {
           setClients(res.data.data, false);
         });
       });
+      setnameHelperText('');
+      setnameError(false);
     } catch (error) {
       console.log(error);
     }
@@ -137,12 +147,18 @@ export default function Main({ projectId, setprojectId }) {
                   style={{ display: 'inline' }}
                 >
                   <TextField
+                    error={nameError}
+                    helperText={nameHelperText}
+                    size="200px"
+                    sx={{ ml: 1, mb: 3 }}
+                    inputProps={{ style: { fontSize: 25, fontWeight: 'bold' } }}
+                    variant="standard"
                     fullWidth
-                    ref={inputRef}
+                    inputRef={inputRef}
+                    // ref={inputRef}
                     onMouseDown={(e) => e.preventDefault()}
                     onChange={(e) => setName(e.target.value)}
                     type="text"
-                    style={input}
                     value={name}
                   />
                 </form>
@@ -151,6 +167,7 @@ export default function Main({ projectId, setprojectId }) {
                     <Button>
                       <EditIcon
                         onClick={() => {
+                          console.log(inputRef);
                           inputRef.current.focus();
                         }}
                         color="action"
