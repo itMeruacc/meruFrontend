@@ -35,7 +35,8 @@ export default function ChangeProjectLeader({ project }) {
   useEffect(() => {
     axios.get(`/employee/all`).then((res) => {
       if (res.status === 200) {
-        setuserOptions(res.data.data);
+        console.log(res.data.data);
+        setuserOptions(res.data.data.filter((user) => user.role === 'projectLeader'));
       }
     });
   }, [open]);
