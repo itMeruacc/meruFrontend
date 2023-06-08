@@ -74,6 +74,11 @@ export default function Main({ projectId, setprojectId }) {
   // fetch the data
   useEffect(() => {
     if (!projectId) return;
+    // reset these
+    setnameHelperText('');
+    setnameError(false);
+
+    // fetch
     axios.get(`project/${projectId}`).then((res) => {
       setproject({ project: res.data.data, loader: false });
     });
@@ -88,6 +93,7 @@ export default function Main({ projectId, setprojectId }) {
   const inputRef = useRef();
   // edit name, refresh clients in sidebar and change local state of name
   const handleEditSubmit = (e) => {
+    e.preventDefault();
     const value = name.trim();
     if (value === '') {
       setnameHelperText('Please enter a name to continue');
@@ -96,7 +102,7 @@ export default function Main({ projectId, setprojectId }) {
     }
     try {
       e.preventDefault();
-      axios.patch(`/project/${project.project._id}/name`, { name }).then((res) => {
+      axios.patch(`/project/${project.project._id}/name`, { name: value }).then((res) => {
         console.log(res);
         axios.get(`/project/byClients`).then((res) => {
           setClients(res.data.data, false);
@@ -141,9 +147,9 @@ export default function Main({ projectId, setprojectId }) {
                 <form
                   onBlur={(e) => {
                     handleEditSubmit(e);
-                    inputRef.current.blur();
+                    // inputRef.current.blur();
                   }}
-                  onSubmit={handleEditSubmit}
+                  onSubmit={(e) => handleEditSubmit(e)}
                   style={{ display: 'inline' }}
                 >
                   <TextField
