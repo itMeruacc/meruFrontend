@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { filter } from 'lodash';
+import { filter, propertyOf } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
 // mui
@@ -33,7 +33,7 @@ import secondsToHms from '../helpers/secondsToHms';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'lastActive', label: 'Status', alignRight: false },
   { id: 'role', label: 'Role', alignRight: false },
   { id: 'today', label: 'Today', alignRight: false },
   { id: 'yesterday', label: 'Yesterday', alignRight: false },
@@ -55,7 +55,10 @@ function descendingComparator(a, b, orderBy) {
 
 function getComparator(order, orderBy) {
   return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
+    ? (a, b) => {
+        console.log(a, b, orderBy);
+        return descendingComparator(a, b, orderBy);
+      }
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 

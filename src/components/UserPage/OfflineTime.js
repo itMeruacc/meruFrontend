@@ -31,6 +31,7 @@ import useStore from '../../store/activityStore';
 // ------------------------------------------------------------------
 
 export default function OfflineTime({ act, date, id }) {
+  console.log(date);
   // store
   const setActivities = useStore((state) => state.setActivities);
   const { enqueueSnackbar } = useSnackbar();
@@ -50,6 +51,7 @@ export default function OfflineTime({ act, date, id }) {
     // get projects for editing projects
     axios.get('project').then((res) => setprojects(res.data.data));
   }, []);
+
   // format startTime and endTime
   useEffect(() => {
     // format startTime and endTime
@@ -57,7 +59,7 @@ export default function OfflineTime({ act, date, id }) {
     const endDate = new Date();
     setstartTime(`${startDate.getHours()}:${startDate.getMinutes()}`);
     setendTime(`${endDate.getHours()}:${endDate.getMinutes()}`);
-  }, [act]);
+  }, []);
 
   const handleStartTimeChange = (e) => {
     const { value } = e.target;
@@ -70,6 +72,10 @@ export default function OfflineTime({ act, date, id }) {
 
   const handleEndTimeChange = (e) => {
     const { value } = e.target;
+    const isValid = /^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$/.test(value);
+    console.log(isValid);
+    if (isValid) seterror(false);
+    else seterror(true);
     setendTime(value);
   };
 
@@ -77,27 +83,38 @@ export default function OfflineTime({ act, date, id }) {
     const { value } = e.target;
     setproject(value);
   };
+
   const handleNoteChange = (e) => {
     const { value } = e.target;
     setnote(value);
   };
 
   const handleCancel = (e) => {
+    console.log(project);
     setopen(false);
-    setproject(act.project ? act.project._id : 'null');
-    setnote(act.note ? act.note : 'No Note');
+    setproject('null');
+    setnote('No Note');
+    // setproject(act.project ? act.project._id : 'null');
+    // setnote(act.note ? act.note : 'No Note');
     // format startTime and endTime
-    const startDate = new Date(act.startTime * 1000);
-    const endDate = new Date(act.endTime * 1000);
+    // const startDate = new Date(act.startTime * 1000);
+    // const endDate = new Date(act.endTime * 1000);
+    // setstartTime(`${startDate.getHours()}:${startDate.getMinutes()}`);
+    // setendTime(`${endDate.getHours()}:${endDate.getMinutes()}`);
+    const startDate = new Date();
+    const endDate = new Date();
     setstartTime(`${startDate.getHours()}:${startDate.getMinutes()}`);
     setendTime(`${endDate.getHours()}:${endDate.getMinutes()}`);
+    seterror(false);
   };
 
   const handleAddOfflineTime = () => {
     // make new epoch values
-    const startDate = new Date(act.startTime * 1000);
+    // const startDate = new Date(act.startTime * 1000);
+    const startDate = date;
     startDate.setMinutes(startTime.split(':')[1]);
-    const endDate = new Date(act.endTime * 1000);
+    // const endDate = new Date(act.endTime * 1000);
+    const endDate = date;
     endDate.setHours(endTime.split(':')[0]);
     endDate.setMinutes(endTime.split(':')[1]);
 
@@ -107,8 +124,16 @@ export default function OfflineTime({ act, date, id }) {
     let newNote = note.trim();
     if (newNote === '') newNote = 'No Note';
     axios
-      .patch(`activity/${act._id}`, {
-        project: pro,
+      .post(`activity/`, {
+        // clientId:pro.,
+        projectId: project,
+        // task,
+        // startTime,
+        // consumeTime,
+        // endTime,
+        // performanceData,
+        // isInternal,
+        // activityOn,
         note: newNote,
         // startTime: Math.round(startDate.getTime() / 1000),
         // endTime: Math.round(endDate.getTime() / 1000),
@@ -152,6 +177,7 @@ export default function OfflineTime({ act, date, id }) {
               Offline time range will appear on your timeline. You'll be able to delete or edit it there.
             </Typography>
             <TextField
+              sx={{ mr: 2 }}
               error={error}
               value={startTime}
               onChange={handleStartTimeChange}
@@ -172,8 +198,8 @@ export default function OfflineTime({ act, date, id }) {
           {/* change project */}
           <Box sx={{ minWidth: 120, mt: 2 }}>
             <FormControl fullWidth>
-              <InputLabel>Project</InputLabel>
-              <Select value={project} onChange={handleProjectChange} label="Project(Optional)">
+              <InputLabel>Project (Optional)</InputLabel>
+              <Select value={project} onChange={handleProjectChange} label="Project (Optional)">
                 <MenuItem value={'null'}>No Project</MenuItem>
                 {projects.map((project) => (
                   <MenuItem key={project._id} value={project._id}>

@@ -42,7 +42,7 @@ const mainLoader = {
   justifyContent: 'center',
 };
 const rootPaper = {
-  overflow: 'auto',
+  overflow: 'visible',
   height: '100%',
   display: 'flex',
   flexDirection: 'column',

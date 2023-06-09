@@ -51,6 +51,16 @@ export default function Overview({ date, activities }) {
     setmonthlyHours(month);
     settodayHours(today);
 
+    // group by tasks(note)
+    const groupByTasks = arr.reduce((group, act) => {
+      const { note } = act;
+      group[note] = group[note] ?? { consumeTime: 0 };
+      group[note].consumeTime += act.consumeTime;
+      return group;
+    }, {});
+    console.log(groupByTasks);
+    settasks(groupByTasks);
+
     // group by task(projects)
     // const groupByTasks = arr.reduce((group, act) => {
     //   const { project } = act;
@@ -133,7 +143,7 @@ export default function Overview({ date, activities }) {
                 >
                   <TabList onChange={handleChange}>
                     <Tab label="Tasks" value="1" />
-                    <Tab label="Apps & URL's" value="2" />
+                    {/* <Tab label="Apps & URL's" value="2" /> */}
                   </TabList>
                 </Typography>
               </Box>

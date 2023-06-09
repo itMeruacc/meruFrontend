@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 // mui components
-import { Box, Modal, Autocomplete, Button, TextField, Typography, IconButton } from '@mui/material';
+import { Box, InputAdornment, Modal, Autocomplete, Button, TextField, Typography, IconButton } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 // ------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ export default function ChangeBudget({ project }) {
     <Box sx={{ mt: 1, display: 'flex' }}>
       <Typography variant="h5">Budget: </Typography>
       <Box sx={{ ml: 1, display: 'flex' }}>
-        <Typography variant="h6">{`${budget.time}Hrs, ${budget.money}/${budget.timePeriod}`} </Typography>
+        <Typography variant="h6">{`${budget.time}Hrs, $${budget.money}/${budget.timePeriod}`} </Typography>
         <IconButton onClick={() => setopen(true)} size="small">
           <EditIcon fontSize="small" />
         </IconButton>
@@ -78,24 +78,33 @@ export default function ChangeBudget({ project }) {
           <Box sx={{ mt: 2 }}>
             {/* Time */}
             <TextField
+              type="number"
+              InputProps={{
+                endAdornment: <InputAdornment position="end">Hours</InputAdornment>,
+              }}
               id="time"
-              sx={{ width: 100, mt: 1, mr: 1, display: 'block' }}
+              sx={{ width: 150, mt: 1, mr: 1, display: 'block' }}
               label="Time"
               value={modalBudget.time}
-              onChange={(e) => setmodalBudget((prev) => ({ ...prev, time: e.target.value }))}
+              onChange={(e) => setmodalBudget((prev) => ({ ...prev, time: Number(e.target.value) }))}
             />
 
             {/* Money */}
             <TextField
+              InputProps={{
+                startAdornment: <InputAdornment position="start">$</InputAdornment>,
+              }}
+              type="number"
               id="money"
               sx={{ width: 100, mt: 1, mr: 1 }}
               label="Money"
-              onChange={(e) => setmodalBudget((prev) => ({ ...prev, money: e.target.value }))}
+              onChange={(e) => setmodalBudget((prev) => ({ ...prev, money: Number(e.target.value) }))}
               value={modalBudget.money}
             />
 
             {/* Time period */}
             <Autocomplete
+              required
               id="timePeriod"
               disablePortal
               value={modalBudget.timePeriod ?? ''}

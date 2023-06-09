@@ -4,17 +4,17 @@ import axios from 'axios';
 // mui components
 import { Box, Link, Divider, Switch, Typography, TextField } from '@mui/material';
 
-function ToggleMember({ user, project }) {
-  return (
-    <Box sx={{ mt: 2 }} key={user._id}>
-      <Box sx={{ display: 'flex' }}>
-        <Switch onChange={(e) => console.log(e.target.value)} defaultChecked={user._id in project.project.employees} />
-        <Typography variant="h5">{user.name}</Typography>
-      </Box>
-      <Divider dark />
-    </Box>
-  );
-}
+// function ToggleMember({ user, project }) {
+//   return (
+//     <Box sx={{ mt: 2 }} key={user._id}>
+//       <Box sx={{ display: 'flex' }}>
+//         <Switch onChange={(e) => console.log(e.target.value)} defaultChecked={user._id in project.project.employees} />
+//         <Typography variant="h5">{user.name}</Typography>
+//       </Box>
+//       <Divider dark />
+//     </Box>
+//   );
+// }
 
 export default function ProjectMembers({ project }) {
   const [users, setusers] = useState([]);
@@ -92,7 +92,7 @@ export default function ProjectMembers({ project }) {
           label="Search"
         />
       </Box>
-      <Box sx={{ maxHeight: '370px', overflow: 'auto' }}>
+      <Box sx={{ maxHeight: '340px', overflow: 'auto' }}>
         {filteredUsers.map((user) => (
           <ToggleMember key={user._id} user={user} />
         ))}

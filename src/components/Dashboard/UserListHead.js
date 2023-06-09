@@ -26,6 +26,7 @@ UserListHead.propTypes = {
 export default function UserListHead({ order, orderBy, headLabel, onRequestSort }) {
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
+    console.log(headLabel);
   };
 
   return (
