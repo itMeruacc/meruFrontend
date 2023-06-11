@@ -4,11 +4,11 @@ import TextField from '@mui/material/TextField';
 
 export default function SelectGroup({ setgroup }) {
   const selectGroupOptions = [
-    { label: 'Group by employee', value: 'E' },
     { label: 'Group by project', value: 'P' },
+    { label: 'Group by client', value: 'C' },
+    { label: 'Group by employee', value: 'E' },
     { label: 'Detailed', value: 'D' },
     { label: 'Group by Apps & URLs', value: 'A' },
-    { label: 'Group by client', value: 'C' },
   ];
 
   const [value, setvalue] = React.useState([selectGroupOptions[0]]);
@@ -30,7 +30,7 @@ export default function SelectGroup({ setgroup }) {
             ...typoStyle,
           }}
           onClick={() => {
-            setvalue([selectGroupOptions[1]]);
+            setvalue([selectGroupOptions[0]]);
           }}
         >
           Summary by project
@@ -40,7 +40,7 @@ export default function SelectGroup({ setgroup }) {
             ...typoStyle,
           }}
           onClick={() => {
-            setvalue([selectGroupOptions[4]]);
+            setvalue([selectGroupOptions[1]]);
           }}
         >
           Summary by client
@@ -50,7 +50,7 @@ export default function SelectGroup({ setgroup }) {
             ...typoStyle,
           }}
           onClick={() => {
-            setvalue([selectGroupOptions[1]]);
+            setvalue([selectGroupOptions[2]]);
           }}
         >
           Summary by employee
@@ -61,7 +61,7 @@ export default function SelectGroup({ setgroup }) {
             ...typoStyle,
           }}
           onClick={() => {
-            setvalue([selectGroupOptions[2]]);
+            setvalue([selectGroupOptions[3]]);
           }}
         >
           Detailed
@@ -71,7 +71,7 @@ export default function SelectGroup({ setgroup }) {
             ...typoStyle,
           }}
           onClick={() => {
-            setvalue([selectGroupOptions[3]]);
+            setvalue([selectGroupOptions[4]]);
           }}
         >
           Apps & URLs

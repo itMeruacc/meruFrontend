@@ -111,29 +111,23 @@ function Row(props) {
   const handleDelete = () => {
     try {
       axios.delete(`${axios.defaults.baseURL}report/delete/${row.url}`).then((res) => {
-        enqueueSnackbar(
-          'Report deleted',
-          { variant: 'success' },
-          {
-            anchorOrigin: {
-              vertical: 'bottom',
-              horizontal: 'left',
-            },
-          }
-        );
+        enqueueSnackbar('Report deleted', {
+          variant: 'success',
+          anchorOrigin: {
+            vertical: 'top',
+            horizontal: 'left',
+          },
+        });
         axios.get(`report/saved`).then((res) => setRowsData(res.data.data));
       });
     } catch (err) {
-      enqueueSnackbar(
-        err.message,
-        { variant: 'error' },
-        {
-          anchorOrigin: {
-            vertical: 'bottom',
-            horizontal: 'left',
-          },
-        }
-      );
+      enqueueSnackbar(err.message, {
+        variant: 'error',
+        anchorOrigin: {
+          vertical: 'bottom',
+          horizontal: 'left',
+        },
+      });
     }
   };
   const handleClickSave = async () => {

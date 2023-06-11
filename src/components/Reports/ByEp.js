@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-
 import { groupBy as rowGrouper, random } from 'lodash';
-
 import DataGrid from 'react-data-grid';
 import { Box, Divider, Typography } from '@mui/material';
 import { fontSize } from '@mui/system';
@@ -52,7 +50,6 @@ export default function ByEp({ reports }) {
 
   React.useEffect(() => {
     // setRowData(savedReports.reports[0]?.byEP);
-
     const arr = [];
     // eslint-disable-next-line array-callback-return
     reports.reports[0]?.byEP?.map((emp) => {
@@ -70,6 +67,7 @@ export default function ByEp({ reports }) {
       });
     });
     setRows(arr);
+    console.log(arr);
   }, [reports]);
 
   function toggleOption(option, enabled) {
