@@ -2,7 +2,8 @@ import PropTypes from 'prop-types';
 import { set, sub } from 'date-fns';
 import { noCase } from 'change-case';
 import { faker } from '@faker-js/faker';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import axios from 'axios';
 // @mui
 import {
   Box,
@@ -78,12 +79,18 @@ const NOTIFICATIONS = [
 
 export default function NotificationsPopover() {
   const ud = JSON.parse(localStorage.ud);
-  console.log(ud.notifications);
   const anchorRef = useRef(null);
 
   const [notifications, setNotifications] = useState(ud.notifications ?? []);
 
   const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
+
+  // fetch notifications
+  useEffect(() => {
+    axios.get('/notify').then((res) => {
+      setNotifications(res.data.data);
+    });
+  }, []);
 
   const [open, setOpen] = useState(null);
 
@@ -277,3 +284,5 @@ function renderContent(notification) {
     title,
   };
 }
+
+// title, desc, type, avatar

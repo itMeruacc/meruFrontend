@@ -39,7 +39,7 @@ export default function OfflineTime({ act, date, id }) {
   const [open, setopen] = useState(false);
   const [startTime, setstartTime] = useState(new Date());
   const [endTime, setendTime] = useState(new Date());
-  const [project, setproject] = useState('null');
+  const [project, setproject] = useState(null);
   const [note, setnote] = useState('');
   // for selection
   const [projects, setprojects] = useState([]);
@@ -125,18 +125,17 @@ export default function OfflineTime({ act, date, id }) {
     if (newNote === '') newNote = 'No Note';
     axios
       .post(`activity/`, {
-        // clientId:pro.,
-        projectId: project,
-        // task,
-        // startTime,
-        // consumeTime,
-        // endTime,
-        // performanceData,
-        // isInternal,
-        // activityOn,
         note: newNote,
-        // startTime: Math.round(startDate.getTime() / 1000),
-        // endTime: Math.round(endDate.getTime() / 1000),
+        clientId: null,
+        projectId: project === 'null' ? null : project,
+        task: '',
+        startTime: Math.round(startDate.getTime() / 1000),
+        endTime: Math.round(endDate.getTime() / 1000),
+        consumeTime: startTime - endTime,
+        performanceData: '100',
+        isInternal: false,
+        activityOn: date,
+        employeeId: id,
       })
       .then((res) => {
         setopen(false);

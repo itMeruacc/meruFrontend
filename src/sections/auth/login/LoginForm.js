@@ -56,6 +56,7 @@ export default function LoginForm() {
   const [forgotEmail, setforgotEmail] = useState('');
   const [forgotEmailHelperText, setforgotEmailHelperText] = useState('');
   const [forgotError, setforgotError] = useState(false);
+  const [loader, setloader] = useState(false);
 
   const LoginSchema = Yup.object().shape({
     email: Yup.string().email('Email must be a valid email address').required('Email is required'),
@@ -133,6 +134,7 @@ export default function LoginForm() {
       return;
     }
     console.log(forgotEmail);
+    setloader(true);
     await axios
       .post('/forgot', {
         email: forgotEmail,
@@ -145,10 +147,12 @@ export default function LoginForm() {
             horizontal: 'left',
           },
         });
+        setloader(false);
         handleClose();
       })
       .catch((err) => {
         console.log(err);
+        setloader(false);
         enqueueSnackbar('Email not found, please enter another email', {
           variant: 'error',
           anchorOrigin: {
@@ -205,7 +209,7 @@ export default function LoginForm() {
               error={forgotError}
               required
               value={forgotEmail}
-              onChange={(e, value) => setforgotEmail(e.target.value)}
+              onChange={(e) => setforgotEmail(e.target.value)}
               fullWidth
               type="email"
               color="primary"
@@ -213,7 +217,7 @@ export default function LoginForm() {
             />
 
             <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button type="submit" onClick={(e) => forgot(e)}>
+              <Button disabled={loader} type="submit" onClick={(e) => forgot(e)}>
                 Confirm
               </Button>
               <Button onClick={handleClose}>Cancel</Button>

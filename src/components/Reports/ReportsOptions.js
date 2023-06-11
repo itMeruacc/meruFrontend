@@ -316,16 +316,13 @@ export default function ReportsOptions({ reports, options }) {
     });
     if (share) {
       navigator.clipboard.writeText(`${window.location.origin}/reports/sharedReports/${url}`);
-      enqueueSnackbar(
-        'link copied',
-        { variant: 'success' },
-        {
-          anchorOrigin: {
-            vertical: 'bottom',
-            horizontal: 'left',
-          },
-        }
-      );
+      enqueueSnackbar('link copied', {
+        variant: 'success',
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal: 'left',
+        },
+      });
     }
   };
 

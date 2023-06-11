@@ -244,16 +244,13 @@ function Row(props) {
             sx={{ fontSize: 'medium', cursor: 'pointer' }}
             onClick={() => {
               navigator.clipboard.writeText(`${window.location.origin}/reports/sharedReports/${row.url}`);
-              enqueueSnackbar(
-                'Link copied',
-                { variant: 'success' },
-                {
-                  anchorOrigin: {
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                  },
-                }
-              );
+              enqueueSnackbar('Link copied', {
+                variant: 'success',
+                anchorOrigin: {
+                  vertical: 'top',
+                  horizontal: 'left',
+                },
+              });
             }}
           />
         </TableCell>

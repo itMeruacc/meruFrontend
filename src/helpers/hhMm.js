@@ -8,6 +8,7 @@ function checkTime(i) {
 const ud = JSON.parse(localStorage.ud ?? '{}');
 
 export default function toHhMm(string) {
+  console.log(ud.accountInfo.timeZone);
   const timeZone = ud.accountInfo.timeZone ?? Intl.DateTimeFormat().resolvedOptions();
   // const today = new Date(string * 1000);
   const today = new Date(

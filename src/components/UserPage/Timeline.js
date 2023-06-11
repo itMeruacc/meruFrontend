@@ -39,6 +39,9 @@ const cell = {
 };
 
 export default function Timeline({ activities, date }) {
+  const ud = JSON.parse(localStorage.ud ?? '{}');
+  const timeZone = ud.accountInfo.timeZone ?? Intl.DateTimeFormat().resolvedOptions();
+
   const [workTimes, setWorkTimes] = useState();
 
   useEffect(() => {
@@ -51,11 +54,21 @@ export default function Timeline({ activities, date }) {
     });
 
     filteredActs?.forEach((act) => {
-      const dateObj = new Date(act.startTime * 1000);
+      const dateObj = new Date(
+        new Date(act.startTime * 1000).toLocaleString('en-US', {
+          timeZone,
+        })
+      );
+      // const dateObj = new Date(act.startTime * 1000);
       const hrs = dateObj.getHours();
       const mins = dateObj.getMinutes();
       const seconds = dateObj.getSeconds();
-      const endDateObj = new Date(act.endTime * 1000);
+      const endDateObj = new Date(
+        new Date(act.endTime * 1000).toLocaleString('en-US', {
+          timeZone,
+        })
+      );
+      // const endDateObj = new Date(act.endTime * 1000);
       const endHrs = endDateObj.getHours();
       const endMins = endDateObj.getMinutes();
       const endSeconds = endDateObj.getSeconds();

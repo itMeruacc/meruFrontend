@@ -144,7 +144,7 @@ export default function UserPage() {
             {/* screenshots and activities */}
             <ScreenShots id={id} isInternal={isInternal} activities={activities.activities} date={date} />
 
-            <OfflineTime date={date} />
+            <OfflineTime date={date} id={id} />
           </Box>
         </CssBaseline>
       </Container>

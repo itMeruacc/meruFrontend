@@ -69,16 +69,13 @@ export default function Activity({ act, date, id }) {
       })
       .then((res) => {
         if (res.status === 200) {
-          enqueueSnackbar(
-            'Activity deleted',
-            { variant: 'success' },
-            {
-              anchorOrigin: {
-                vertical: 'bottom',
-                horizontal: 'left',
-              },
-            }
-          );
+          enqueueSnackbar('Activity deleted', {
+            variant: 'success',
+            anchorOrigin: {
+              vertical: 'top',
+              horizontal: 'left',
+            },
+          });
 
           // refresh activities
           axios
