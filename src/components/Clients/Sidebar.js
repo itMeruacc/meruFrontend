@@ -79,7 +79,6 @@ export default function Sidebar({ setclientId }) {
   };
 
   return (
-    <>
       <Container sx={{ width: '30%', m: 1, mr: 0.5 }} disableGutters>
         <Paper component="div" elevation={3} sx={rootPaper}>
           {/* search component */}
@@ -147,6 +146,5 @@ export default function Sidebar({ setclientId }) {
           <AddClient />
         </Paper>
       </Container>
-    </>
   );
 }

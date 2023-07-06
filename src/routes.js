@@ -10,6 +10,7 @@ import NotFound from './pages/Page404';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Projects from './pages/Projects';
+import Team from './pages/Team';
 import UserPage from './pages/UserPage';
 import Reports from './pages/Reports';
 import Teams from './pages/Teams';
@@ -34,7 +35,9 @@ export default function Router() {
         { path: 'reports', element: <Reports /> },
         { path: 'teams', element: <Teams /> },
         { path: 'dashboard', element: <Dashboard /> },
+
         { path: 'setting', element: <Settings /> },
+
         { path: 'projects', element: <Projects /> },
         { path: 'profile', element: <Profile /> },
       ],

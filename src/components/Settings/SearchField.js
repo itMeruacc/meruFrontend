@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 
-import { Autocomplete, TextField } from '@mui/material';
+import { Autocomplete, TextField, Checkbox } from '@mui/material';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
+
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 const names = [
   'Oliver Hansen',
@@ -32,7 +37,20 @@ export default function SearchField({callback}) {
       id="multiple-limit-tags"
       onChange={handleChange} 
       options={userName}
+      disableCloseOnSelect
+      size='medium'
       getOptionLabel={(option) => option}
+      renderOption={(props, option, { selected }) => (
+        <li {...props}>
+          <Checkbox
+            icon={icon}
+            checkedIcon={checkedIcon}
+            style={{ marginRight: 8 }}
+            checked={selected}
+          />
+          {option}
+        </li>
+      )}
       renderInput={(params) => (
         <TextField {...params} label="Users" placeholder="Users"/>
       )}

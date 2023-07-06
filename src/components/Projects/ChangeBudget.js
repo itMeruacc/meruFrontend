@@ -3,7 +3,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 // mui components
+
 import { Box, InputAdornment, Modal, Autocomplete, Button, TextField, Typography, IconButton } from '@mui/material';
+
 import EditIcon from '@mui/icons-material/Edit';
 // ------------------------------------------------------------------------
 
@@ -22,6 +24,7 @@ const modalStyle = {
 
 export default function ChangeBudget({ project }) {
   // store
+
   const [budget, setbudget] = useState({ timePeriod: 'Week', time: 0, money: 0 });
   const [modalBudget, setmodalBudget] = useState({ timePeriod: '', time: '', money: '' });
   const [open, setopen] = useState(false);
@@ -60,6 +63,7 @@ export default function ChangeBudget({ project }) {
           <EditIcon fontSize="small" />
         </IconButton>
       </Box>
+
 
       {/* modal */}
       <Modal

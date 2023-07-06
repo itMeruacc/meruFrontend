@@ -14,6 +14,7 @@ if (localStorage.ud) {
   ud = JSON.parse(localStorage.ud);
 }
 
+
 // eslint-disable-next-line import/no-mutable-exports
 let navConfig = [];
 
@@ -73,5 +74,6 @@ else
       icon: getIcon('ant-design:setting-filled'),
     },
   ];
+
 
 export default navConfig;

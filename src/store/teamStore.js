@@ -1,6 +1,7 @@
 import create from 'zustand';
 
 const useStore = create((set) => ({
+
   users: {
     users: [],
     loader: true,
@@ -10,6 +11,7 @@ const useStore = create((set) => ({
     set(() => ({
       users: {
         users,
+
         loader,
       },
     })),

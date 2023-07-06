@@ -8,10 +8,10 @@ import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 
 // components
-import TotalHours from './TotalHours';
-import MonthlyHours from './MonthlyHours';
-import WeeklyHours from './WeeklyHours';
-import TodayHours from './TodayHours';
+import TotalHours from './totalHours';
+import MonthlyHours from './monthlyHours';
+import WeeklyHours from './weeklyHours';
+import TodayHours from './todayHours';
 
 // helpers
 import secondsToHms from '../../helpers/secondsToHms';
