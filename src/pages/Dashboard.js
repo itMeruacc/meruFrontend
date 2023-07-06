@@ -1,9 +1,10 @@
 import axios from 'axios';
-import { filter } from 'lodash';
+import { filter, propertyOf } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
 // mui
 import {
+  CircularProgress,
   Link,
   Card,
   Table,
@@ -32,7 +33,7 @@ import secondsToHms from '../helpers/secondsToHms';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'lastActive', label: 'Status', alignRight: false },
   { id: 'role', label: 'Role', alignRight: false },
   { id: 'today', label: 'Today', alignRight: false },
   { id: 'yesterday', label: 'Yesterday', alignRight: false },
@@ -54,7 +55,10 @@ function descendingComparator(a, b, orderBy) {
 
 function getComparator(order, orderBy) {
   return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
+    ? (a, b) => {
+        console.log(a, b, orderBy);
+        return descendingComparator(a, b, orderBy);
+      }
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
@@ -72,6 +76,7 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function Dashboard() {
+  const [loader, setloader] = useState(true);
   const [userList, setuserList] = useState([]);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
@@ -86,6 +91,8 @@ export default function Dashboard() {
       .get('/employee/dashboard/all')
       .then((res) => {
         setuserList(res.data.data);
+        console.log(res.data.data);
+        setloader(false);
       })
       .catch((err) => {
         if (axios.isCancel(err)) {
@@ -119,6 +126,56 @@ export default function Dashboard() {
     setFilterName(event.target.value);
   };
 
+  const getStatus = (lastActive) => {
+    const now = new Date().getTime();
+
+    const seconds = Math.floor(now - lastActive) / 1000;
+
+    let interval = seconds / 31536000;
+    if (interval > 1) {
+      // years
+      return `Offline`;
+    }
+    interval = seconds / 2592000;
+    if (interval > 1) {
+      return `${Math.floor(interval)} months ago`;
+    }
+    interval = seconds / 86400;
+    if (interval > 1) {
+      return `${Math.floor(interval)} days ago`;
+    }
+    interval = seconds / 3600;
+    if (interval > 1) {
+      return `${Math.floor(interval)} hours ago`;
+    }
+    interval = seconds / 60;
+    if (interval > 1) {
+      return `${Math.floor(interval)} minutes ago`;
+    }
+    return `Active now`;
+  };
+
+  function formatRole(role) {
+    if (role === 'projectLeader') return 'Project Leader';
+    return role.charAt(0).toUpperCase() + role.slice(1);
+  }
+
+  function getStatusColor(lastActive) {
+    const now = new Date().getTime();
+    const seconds = Math.floor(now - lastActive) / 1000;
+
+    let interval = seconds / 86400;
+    if (interval > 1) {
+      return `error`;
+    }
+
+    interval = seconds / 60;
+    if (interval > 1) {
+      return `primary`;
+    }
+    return `success`;
+  }
+
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
 
   const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName);
@@ -151,7 +208,7 @@ export default function Dashboard() {
                       <TableRow hover key={_id} tabIndex={-1} role="checkbox">
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar sx={{ ml: 1, mr: -1 }} alt={name} />
+                            <Avatar sx={{ ml: 1, mr: -1 }} href={avatar} alt={name} />
                             <Typography sx={{ cursor: 'pointer' }} variant="subtitle2" noWrap>
                               <Link href={`/dashboard/timeline/${_id}`} underline="hover" color="inherit">
                                 {name}
@@ -160,11 +217,11 @@ export default function Dashboard() {
                           </Stack>
                         </TableCell>
                         <TableCell align="left">
-                          <Label variant="ghost" color={(true === 'banned' && 'error') || 'success'}>
-                            {sentenceCase('active')}
+                          <Label variant="ghost" color={getStatusColor(lastActive)}>
+                            {getStatus(lastActive)}
                           </Label>
                         </TableCell>
-                        <TableCell align="left">{role}</TableCell>
+                        <TableCell align="left">{formatRole(role)}</TableCell>
                         <TableCell align="left">{secondsToHms(time?.today)}</TableCell>
                         <TableCell align="left">{secondsToHms(time?.yesterday)}</TableCell>
                         <TableCell align="left">{secondsToHms(time?.weekly)}</TableCell>
@@ -183,7 +240,7 @@ export default function Dashboard() {
                   <TableBody>
                     <TableRow>
                       <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <SearchNotFound searchQuery={filterName} />
+                        {loader ? <CircularProgress /> : <SearchNotFound searchQuery={filterName} />}
                       </TableCell>
                     </TableRow>
                   </TableBody>

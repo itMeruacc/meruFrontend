@@ -1,50 +1,135 @@
 // react and other importanat library
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 
 // mui components
-import { Box, Container, Input, Paper, Typography } from '@mui/material';
+
+import { Box, InputAdornment, Modal, Autocomplete, Button, TextField, Typography, IconButton } from '@mui/material';
+
 import EditIcon from '@mui/icons-material/Edit';
+// ------------------------------------------------------------------------
 
-const ChangeBudget = () => {
-  // store
-  const [edit, setEdit] = useState(false);
-  const [projectHrs, setProjectHrs] = useState(0);
-  const [internalHrs, setInternalHrs] = useState(0);
-  const [budgetHrs, setBudgetHrs] = useState(0);
-  const [budgetMoney, setBudgetMoney] = useState(0);
-  const [BudgetPeriod, setBudgetPeBudgetPeriod] = useState('Monthly');
-  const [editNumber, setEditNumber] = useState(-1);
-
-  return (
-    <Box flexGrow={1}>
-      <Container disableGutters sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Container disableGutters>
-          <Typography variant="h5">Total Project Hours : {projectHrs}hrs</Typography>
-          <Typography variant="h5">Total Internal Hours : {internalHrs}hrs</Typography>
-        </Container>
-        <Container disableGutters>
-          <Paper sx={{ display: 'flex', justifyContent: 'space-between', alignContent: 'center' }}>
-            <Typography variant="h5">
-              Budget Hours :{editNumber === 1 ? <Input sx={{ width: 50 }} value={budgetHrs} /> : budgetHrs}hrs
-            </Typography>
-            <EditIcon onClick={() => setEditNumber(1)} />
-          </Paper>
-          <Paper sx={{ display: 'flex', justifyContent: 'space-between', alignContent: 'center' }}>
-            <Typography variant="h5">
-              BudgetMoney : {editNumber === 2 ? <Input sx={{ width: 50 }} value={budgetMoney} /> : budgetMoney} Rs{' '}
-            </Typography>{' '}
-            <EditIcon onClick={() => setEditNumber(2)} />
-          </Paper>
-          <Paper sx={{ display: 'flex', justifyContent: 'space-between', alignContent: 'center' }}>
-            <Typography variant="h5">
-              BudgetPeriod : {editNumber === 3 ? <Input sx={{ width: 100 }} value={BudgetPeriod} /> : BudgetPeriod}{' '}
-            </Typography>{' '}
-            <EditIcon onClick={() => setEditNumber(3)} />
-          </Paper>
-        </Container>
-      </Container>
-    </Box>
-  );
+const modalStyle = {
+  // display: 'flex',
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 250,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
 };
 
-export default ChangeBudget;
+export default function ChangeBudget({ project }) {
+  // store
+
+  const [budget, setbudget] = useState({ timePeriod: 'Week', time: 0, money: 0 });
+  const [modalBudget, setmodalBudget] = useState({ timePeriod: '', time: '', money: '' });
+  const [open, setopen] = useState(false);
+
+  // form ref
+  const formRef = useRef();
+
+  // change the local client state every time project changes
+  useEffect(() => {
+    setbudget((prev) => (project.project.budget ? project.project.budget : prev));
+    setmodalBudget((prev) => (project.project.budget ? project.project.budget : prev));
+  }, [project]);
+
+  // edit budget
+  const handleSubmit = (e) => {
+    axios
+      .patch(`project/${project.project._id}/budget`, { budget: modalBudget })
+      .then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          setbudget(modalBudget);
+        }
+      })
+      .catch((error) => console.log(error));
+    console.log(modalBudget);
+    setopen(false);
+    setmodalBudget({ timePeriod: '', time: '', money: '' });
+  };
+
+  return (
+    <Box sx={{ mt: 1, display: 'flex' }}>
+      <Typography variant="h5">Budget: </Typography>
+      <Box sx={{ ml: 1, display: 'flex' }}>
+        <Typography variant="h6">{`${budget.time}Hrs, $${budget.money}/${budget.timePeriod}`} </Typography>
+        <IconButton onClick={() => setopen(true)} size="small">
+          <EditIcon fontSize="small" />
+        </IconButton>
+      </Box>
+
+
+      {/* modal */}
+      <Modal
+        open={open}
+        onClose={() => {
+          setopen(false);
+          setmodalBudget({ timePeriod: '', time: '', money: '' });
+        }}
+      >
+        <Box sx={modalStyle}>
+          {/* heading */}
+          <Typography sx={{ display: 'box' }} variant="h5">
+            Change Budget
+          </Typography>
+
+          <Box sx={{ mt: 2 }}>
+            {/* Time */}
+            <TextField
+              type="number"
+              InputProps={{
+                endAdornment: <InputAdornment position="end">Hours</InputAdornment>,
+              }}
+              id="time"
+              sx={{ width: 150, mt: 1, mr: 1, display: 'block' }}
+              label="Time"
+              value={modalBudget.time}
+              onChange={(e) => setmodalBudget((prev) => ({ ...prev, time: Number(e.target.value) }))}
+            />
+
+            {/* Money */}
+            <TextField
+              InputProps={{
+                startAdornment: <InputAdornment position="start">$</InputAdornment>,
+              }}
+              type="number"
+              id="money"
+              sx={{ width: 100, mt: 1, mr: 1 }}
+              label="Money"
+              onChange={(e) => setmodalBudget((prev) => ({ ...prev, money: Number(e.target.value) }))}
+              value={modalBudget.money}
+            />
+
+            {/* Time period */}
+            <Autocomplete
+              required
+              id="timePeriod"
+              disablePortal
+              value={modalBudget.timePeriod ?? ''}
+              options={['Week', 'Month']}
+              onChange={(e, value) => setmodalBudget((prev) => ({ ...prev, timePeriod: value }))}
+              sx={{ width: 160, mt: 1, mr: 1 }}
+              renderInput={(params) => <TextField {...params} label="Time Period" />}
+            />
+            <Button
+              sx={{ mt: 2 }}
+              onClick={handleSubmit}
+              type="submit"
+              size="large"
+              variant="contained"
+              color="primary"
+            >
+              Save
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+    </Box>
+  );
+}

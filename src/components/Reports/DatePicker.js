@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import TextField from '@mui/material/TextField';
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import dayjs from 'dayjs';
-import AdapterDayjs from '@mui/lab/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers';
 import { Box, Typography } from '@mui/material';
 
 // style
@@ -16,7 +16,7 @@ const typoStyle = {
 };
 
 export default function DatePicker({ setdate }) {
-  const [value, setvalue] = useState([null, null]);
+  const [value, setvalue] = useState([dayjs(), dayjs()]);
   const [range, setrange] = useState('Custom');
 
   // send the changed date back to main whenever value is chcanged
@@ -33,7 +33,7 @@ export default function DatePicker({ setdate }) {
             ...typoStyle,
           }}
           onClick={() => {
-            setvalue([dayjs(), dayjs()]);
+            setvalue([dayjs(), dayjs().add(1, 'day')]);
             setrange('Today');
           }}
         >
@@ -80,7 +80,7 @@ export default function DatePicker({ setdate }) {
             ...typoStyle,
           }}
           onClick={() => {
-            setvalue([dayjs().add(-1, 'day'), dayjs().add(-1, 'day')]);
+            setvalue([dayjs().add(-1, 'day'), dayjs()]);
             setrange('Yesterday');
           }}
         >

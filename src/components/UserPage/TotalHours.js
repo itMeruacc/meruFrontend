@@ -24,7 +24,7 @@ export default function TotalHours({ Total }) {
     <RootStyle>
       <Typography variant="h3">{secondsToHms(Total)}</Typography>
       <Typography variant="subtitle2" sx={{ opacity: 0.72 }}>
-        Total Hours
+        TOTAL HOURS
       </Typography>
     </RootStyle>
   );

@@ -1,167 +1,188 @@
-// import React from "react";
-// import { useEffect, useState } from "react";
-// import { groupBy as rowGrouper, random } from "lodash";
-// import faker from "faker";
-// import { reportsContext } from "src/contexts/ReportsContext";
+import { useState } from 'react';
+import { faker } from '@faker-js/faker';
+import { groupBy as rowGrouper } from 'lodash-es';
+// import { css } from '@linaria/core';
 
-// import DataGrid, { SelectColumn } from "react-data-grid";
-// import { Box, Typography, Divider } from "@mui/material";
-// import { fontSize } from "@mui/system";
+import DataGrid, { SelectColumn } from 'react-data-grid';
 
-// import { loginContext } from "src/contexts/LoginContext";
-// import { Role } from "../../_helpers/role";
+const groupingClassname = css`
+  display: flex;
+  flex-direction: column;
+  block-size: 100%;
+  gap: 8px;
 
-// function rowKeyGetter(row) {
-//   return Math.floor(Math.random() * 1000 * Math.random() * 200);
-// }
+  > .rdg {
+    flex: 1;
+  }
+`;
 
-// const options = ["employee", "project"];
+const optionsClassname = css`
+  display: flex;
+  gap: 8px;
+  text-transform: capitalize;
+`;
 
-// export default function ByEp(props) {
-//   const { reports } = props;
+const sports = [
+  'Swimming',
+  'Gymnastics',
+  'Speed Skating',
+  'Cross Country Skiing',
+  'Short-Track Speed Skating',
+  'Diving',
+  'Cycling',
+  'Biathlon',
+  'Alpine Skiing',
+  'Ski Jumping',
+  'Nordic Combined',
+  'Athletics',
+  'Table Tennis',
+  'Tennis',
+  'Synchronized Swimming',
+  'Shooting',
+  'Rowing',
+  'Fencing',
+  'Equestrian',
+  'Canoeing',
+  'Bobsleigh',
+  'Badminton',
+  'Archery',
+  'Wrestling',
+  'Weightlifting',
+  'Waterpolo',
+  'Wrestling',
+  'Weightlifting',
+];
 
-//   const [rows, setRows] = useState([]);
-//   const [selectedRows, setSelectedRows] = useState(() => new Set());
-//   const [selectedOptions, setSelectedOptions] = useState([options[1]]);
-//   const [expandedGroupIds, setExpandedGroupIds] = useState(
-//     () => new Set(["Projects"])
-//   );
-//   const { loginC } = React.useContext(loginContext);
+const column = [
+  SelectColumn,
+  {
+    key: 'country',
+    name: 'Country',
+  },
+  {
+    key: 'year',
+    name: 'Year',
+  },
+  {
+    key: 'sport',
+    name: 'Sport',
+  },
+  {
+    key: 'athlete',
+    name: 'Athlete',
+  },
+  {
+    key: 'gold',
+    name: 'Gold',
+    renderGroupCell({ childRows }) {
+      return childRows.reduce((prev, { gold }) => prev + gold, 0);
+    },
+  },
+  {
+    key: 'silver',
+    name: 'Silver',
+    renderGroupCell({ childRows }) {
+      return childRows.reduce((prev, { silver }) => prev + silver, 0);
+    },
+  },
+  {
+    key: 'bronze',
+    name: 'Bronze',
+    renderGroupCell({ childRows }) {
+      return childRows.reduce((prev, { silver }) => prev + silver, 0);
+    },
+  },
+  {
+    key: 'total',
+    name: 'Total',
+    renderCell({ row }) {
+      return row.gold + row.silver + row.bronze;
+    },
+    renderGroupCell({ childRows }) {
+      return childRows.reduce((prev, row) => prev + row.gold + row.silver + row.bronze, 0);
+    },
+  },
+];
 
-//   const columns = [
-//     {
-//       key: "employee",
-//       name: "Employee",
-//     },
-//     {
-//       key: "project",
-//       name: "Project",
-//     },
-//     {
-//       key: "duration",
-//       name: "Duration",
-//       groupFormatter({ childRows }) {
-//         return (
-//           <>
-//             {childRows.reduce(
-//               (prev, { duration }) => Number((prev + duration).toFixed(2)),
-//               0
-//             )}
-//           </>
-//         );
-//       },
-//     },
-//     {
-//       key: "activity",
-//       name: "Activity",
-//       groupFormatter({ childRows }) {
-//         return (
-//           <>
-//             {childRows.reduce(
-//               (prev, { activity }) => Number((prev + activity).toFixed(2)),
-//               0
-//             )}
-//           </>
-//         );
-//       },
-//     },
-//     Role.indexOf(loginC.userData.role) <= 1
-//       ? {
-//           key: "money",
-//           name: `Money ${(<span>&#8377;</span>)}`,
-//           groupFormatter({ childRows }) {
-//             return (
-//               <>
-//                 {childRows.reduce(
-//                   (prev, { money }) => Number((prev + money).toFixed(2)),
-//                   0
-//                 )}
-//               </>
-//             );
-//           },
-//         }
-//       : "",
-//   ];
+function rowKeyGetter(row) {
+  return row.id;
+}
 
-//   React.useEffect(() => {
-//     let arr = [];
-//     reports.reports[0]?.byPE?.map((pro) => {
-//       pro.users.map((emp) => {
-//         arr.push({
-//           id: pro._id.project + random(100),
-//           project: `${
-//             pro.client[0]?.name ? pro?.client[0].name : "Deleted client"
-//           } :
-//               ${
-//                 pro.project[0]?.name ? pro?.project[0]?.name : "Deleted project"
-//               }`,
+function createRows() {
+  const rows = [];
+  // eslint-disable-next-line no-plusplus
+  for (let i = 1; i < 10000; i++) {
+    rows.push({
+      id: i,
+      year: 2015 + faker.number.int(3),
+      country: faker.location.country(),
+      sport: sports[faker.number.int(sports.length - 1)],
+      athlete: faker.person.fullName(),
+      gold: faker.number.int(5),
+      silver: faker.number.int(5),
+      bronze: faker.number.int(5),
+    });
+  }
 
-//           employee: `${emp.firstName} ${emp.lastName}`,
-//           duration: Number((emp.totalHours / 3600).toFixed(2)),
-//           money: Number(((emp?.totalHours / 3600) * emp?.payRate).toFixed(2)),
-//           activity: Number((emp.avgPerformanceData / 1).toFixed(2)),
-//         });
-//       });
-//     });
-//     setRows(arr);
-//   }, [reports]);
+  return rows.sort((r1, r2) => r2.country.localeCompare(r1.country));
+}
 
-//   function toggleOption(option, enabled) {
-//     const index = selectedOptions.indexOf(option);
-//     if (enabled) {
-//       if (index === -1) {
-//         setSelectedOptions((options) => [...options, option]);
-//       }
-//     } else if (index !== -1) {
-//       setSelectedOptions((options) => {
-//         const newOptions = [...options];
-//         newOptions.splice(index, 1);
-//         return newOptions;
-//       });
-//     }
-//     setExpandedGroupIds(new Set());
-//   }
+const options = ['country', 'year', 'sport', 'athlete'];
 
-//   return reports.reports[0].byPE.length !== 0 ? (
-//     <Box sx={{ mt: 3 }}>
-//       <Typography varinat="h3" sx={{ fontWeight: "700", fontSize: "1.5rem" }}>
-//         Group by columns:
-//       </Typography>
-//       <div>
-//         {options.map((option) => (
-//           <label key={option}>
-//             <input
-//               style={{ marginLeft: "1rem" }}
-//               type="checkbox"
-//               checked={selectedOptions.includes(option)}
-//               onChange={(event) => toggleOption(option, event.target.checked)}
-//             />
-//             {option}
-//           </label>
-//         ))}
-//       </div>
-//       <DataGrid
-//         columns={columns}
-//         rows={rows}
-//         rowKeyGetter={rowKeyGetter}
-//         selectedRows={selectedRows}
-//         onSelectedRowsChange={setSelectedRows}
-//         groupBy={selectedOptions}
-//         rowGrouper={rowGrouper}
-//         expandedGroupIds={expandedGroupIds}
-//         onExpandedGroupIdsChange={setExpandedGroupIds}
-//         defaultColumnOptions={{ resizable: true }}
-//         // direction={direction}
-//       />
-//     </Box>
-//   ) : (
-//     <>
-//       <Divider />
-//       <Box sx={{ display: "flex", flexDirection: "row", m: 10 }}>
-//         <Typography varinat="h1" sx={{ fontWeight: "bold" }}>
-//           No tracked time found matching the criteria
-//         </Typography>
-//       </Box>
-//     </>
-//   );
-// }
+export default function Grouping({ direction }) {
+  const [rows] = useState(createRows);
+  const [selectedRows, setSelectedRows] = useState();
+  const [selectedOptions, setSelectedOptions] = useState([options[0], options[1]]);
+  const [expandedGroupIds, setExpandedGroupIds] = useState(
+    'United States of America',
+    'United States of America__2015'
+  );
+
+  function toggleOption(option, enabled) {
+    const index = selectedOptions.indexOf(option);
+    if (enabled) {
+      if (index === -1) {
+        setSelectedOptions((options) => [...options, option]);
+      }
+    } else if (index !== -1) {
+      setSelectedOptions((options) => {
+        const newOptions = [...options];
+        newOptions.splice(index, 1);
+        return newOptions;
+      });
+    }
+    setExpandedGroupIds(new Set());
+  }
+
+  return (
+    <div className={groupingClassname}>
+      <b>Group by columns:</b>
+      <div className={optionsClassname}>
+        {options.map((option) => (
+          <label key={option}>
+            <input
+              type="checkbox"
+              checked={selectedOptions.includes(option)}
+              onChange={(event) => toggleOption(option, event.target.checked)}
+            />{' '}
+            {option}
+          </label>
+        ))}
+      </div>
+
+      <DataGrid
+        columns={columns}
+        rows={rows}
+        rowKeyGetter={rowKeyGetter}
+        selectedRows={selectedRows}
+        onSelectedRowsChange={setSelectedRows}
+        groupBy={selectedOptions}
+        rowGrouper={rowGrouper}
+        expandedGroupIds={expandedGroupIds}
+        onExpandedGroupIdsChange={setExpandedGroupIds}
+        defaultColumnOptions={{ resizable: true }}
+        direction={direction}
+      />
+    </div>
+  );
+}

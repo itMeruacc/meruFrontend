@@ -80,11 +80,9 @@ export default function DashboardNavbar({ onOpenSidebar }) {
         <Stack direction="row" alignItems="center" spacing={{ xs: 0.5, sm: 1.5 }}>
           <Tooltip title="Download App">
             <IconButton
+              href="https://meru-screenshots.s3.ap-south-1.amazonaws.com/app/meru-accounting-ssm+Setup+0.0.1.exe"
               size="large"
               color="default"
-              onClick={async () => {
-                await downloadApp();
-              }}
             >
               <DownloadIcon />
             </IconButton>

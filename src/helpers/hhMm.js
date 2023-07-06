@@ -5,13 +5,20 @@ function checkTime(i) {
   return i;
 }
 
-export default function toHhMm(string) {
-  const today = new Date(string);
-  let h = today.getHours();
-  let m = today.getMinutes();
+const ud = JSON.parse(localStorage.ud ?? '{}');
 
-  // add a zero in front of numbers<10
-  h = checkTime(h);
-  m = checkTime(m);
-  return `${h}:${m}`;
+export default function toHhMm(string) {
+  console.log(ud.accountInfo.timeZone);
+  const timeZone = ud.accountInfo.timeZone ?? Intl.DateTimeFormat().resolvedOptions();
+  // const today = new Date(string * 1000);
+  const today = new Date(
+    new Date(string * 1000).toLocaleString('en-US', {
+      timeZone,
+    })
+  );
+
+  // let h = today.getHours();
+  // let m = today.getMinutes();
+
+  return today.toLocaleTimeString();
 }

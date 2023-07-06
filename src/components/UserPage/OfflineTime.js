@@ -1,286 +1,228 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+import Button from '@mui/material/Button';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import {
-  Box,
-  Button,
-  Divider,
+  FormControl,
+  DialogContentText,
+  FormControlLabel,
   IconButton,
-  MenuItem,
-  Modal,
-  Select,
-  Switch,
-  TextField,
-  Typography,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import AddIcon from "@mui/icons-material/Add";
-import Link from "@mui/material/Link";
-import { CurrentUserContext } from "src/contexts/CurrentUserContext";
-import timeDiff from "src/_helpers/timeDifference";
-import axios from "axios";
-import { useSnackbar } from "notistack";
-import { getCommonData } from "src/api/auth api/commondata";
+  Link,
+  Autocomplete,
+  Checkbox,
+} from '@mui/material';
+import TextField from '@mui/material/TextField';
+import Box from '@mui/material/Box';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import AddIcon from '@mui/icons-material/Add';
 
-const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 600,
-  bgcolor: "#fff",
-  borderRadius: 2,
-  border: "none",
-  display: "flex",
-  flexDirection: "column",
-  overflow: "hidden",
-  "@media (max-width: 600px)": {
-    maxWidth: "80%",
-  },
-};
+import Typography from '@mui/material/Typography';
+import { useSnackbar } from 'notistack';
 
-const OfflineTime = ({ date }) => {
-  const [projectSelected, setProjectSelected] = React.useState("");
-  const [projects, setProjects] = React.useState([]);
-  const [startTime, setStartTime] = React.useState("");
-  const [endTime, setEndTime] = React.useState("");
-  const [internal, setInternal] = React.useState(false);
-  const [modal, setModal] = useState(false);
-  const { commonData, dispatchCommonData } = useContext(CurrentUserContext);
+// store
+import useStore from '../../store/activityStore';
+
+// ------------------------------------------------------------------
+
+export default function OfflineTime({ act, date, id }) {
+  console.log(date);
+  // store
+  const setActivities = useStore((state) => state.setActivities);
   const { enqueueSnackbar } = useSnackbar();
+  //
+  const [open, setopen] = useState(false);
+  const [startTime, setstartTime] = useState(new Date());
+  const [endTime, setendTime] = useState(new Date());
+  const [project, setproject] = useState(null);
+  const [note, setnote] = useState('');
+  // for selection
+  const [projects, setprojects] = useState([]);
+  const [error, seterror] = useState(false);
+  // for dialog open close
 
-  //get projects
+  // get project options
   useEffect(() => {
-    axios
-      .get("/project", { employeeId: commonData.commonData.user._id })
-      .then((res) => {
-        setProjects(res.data.data);
-      })
-      .catch((err) => console.log(err));
+    // get projects for editing projects
+    axios.get('project').then((res) => setprojects(res.data.data));
   }, []);
 
-  //open modal
-  const handleOpen = () => {
-    setModal(true);
+  // format startTime and endTime
+  useEffect(() => {
+    // format startTime and endTime
+    const startDate = new Date();
+    const endDate = new Date();
+    setstartTime(`${startDate.getHours()}:${startDate.getMinutes()}`);
+    setendTime(`${endDate.getHours()}:${endDate.getMinutes()}`);
+  }, []);
+
+  const handleStartTimeChange = (e) => {
+    const { value } = e.target;
+    const isValid = /^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$/.test(value);
+    console.log(isValid);
+    if (isValid) seterror(false);
+    else seterror(true);
+    setstartTime(value);
   };
 
-  //close modal
-  const handleClose = () => {
-    setModal(false);
+  const handleEndTimeChange = (e) => {
+    const { value } = e.target;
+    const isValid = /^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$/.test(value);
+    console.log(isValid);
+    if (isValid) seterror(false);
+    else seterror(true);
+    setendTime(value);
   };
 
-  //change project
-  const handleChange = (event) => {
-    setProjectSelected(event.target.value);
+  const handleProjectChange = (e) => {
+    const { value } = e.target;
+    setproject(value);
   };
 
-  //change start time
-  const handleStartChange = (e) => {
-    setStartTime(e.target.value);
+  const handleNoteChange = (e) => {
+    const { value } = e.target;
+    setnote(value);
   };
 
-  //change end time
-  const handleEndChange = (e) => {
-    setEndTime(e.target.value);
+  const handleCancel = (e) => {
+    console.log(project);
+    setopen(false);
+    setproject('null');
+    setnote('No Note');
+    // setproject(act.project ? act.project._id : 'null');
+    // setnote(act.note ? act.note : 'No Note');
+    // format startTime and endTime
+    // const startDate = new Date(act.startTime * 1000);
+    // const endDate = new Date(act.endTime * 1000);
+    // setstartTime(`${startDate.getHours()}:${startDate.getMinutes()}`);
+    // setendTime(`${endDate.getHours()}:${endDate.getMinutes()}`);
+    const startDate = new Date();
+    const endDate = new Date();
+    setstartTime(`${startDate.getHours()}:${startDate.getMinutes()}`);
+    setendTime(`${endDate.getHours()}:${endDate.getMinutes()}`);
+    seterror(false);
   };
-  //caling api
-  const addTime = async (e) => {
-    e.preventDefault();
-    let year = date.format("YYYY");
-    let month = date.format("M");
-    let day = date.format("D");
-    let dateValues = startTime.split(":");
-    let dateValues2 = endTime.split(":");
-    let hrs = dateValues[0];
-    let mins = dateValues[1];
-    let endhrs = dateValues2[0];
-    let endmins = dateValues2[1];
-    let startValue = `${new Date(year, month, day, hrs, mins, 0, 0).getTime()}`;
-    let endValue = `${new Date(
-      year,
-      month,
-      day,
-      endhrs,
-      endmins,
-      0,
-      0
-    ).getTime()}`;
-    let data = {
-      employeeId: commonData.commonData.user._id,
-      clientId: projectSelected.split("-")[1],
-      task: "offline",
-      projectId: projectSelected.split("-")[0],
-      startTime: startValue,
-      consumeTime: (endValue - startValue) / 1000,
-      endTime: endValue,
-      performanceData: 100,
-      isInternal: internal,
-      activityOn: date.format("DD/MM/YYYY"),
-    };
-    await axios
-      .post("/activity", data)
-      .then((res) => {
-        if (res.status === 201) {
-          enqueueSnackbar("Time added", {
-            variant: "success",
-          });
-          getCommonData(dispatchCommonData);
-        }
+
+  const handleAddOfflineTime = () => {
+    // make new epoch values
+    // const startDate = new Date(act.startTime * 1000);
+    const startDate = date;
+    startDate.setMinutes(startTime.split(':')[1]);
+    // const endDate = new Date(act.endTime * 1000);
+    const endDate = date;
+    endDate.setHours(endTime.split(':')[0]);
+    endDate.setMinutes(endTime.split(':')[1]);
+
+    // string null coz select component cant take null value
+    const pro = project === 'null' ? null : project;
+    // note change
+    let newNote = note.trim();
+    if (newNote === '') newNote = 'No Note';
+    axios
+      .post(`activity/`, {
+        note: newNote,
+        clientId: null,
+        projectId: project === 'null' ? null : project,
+        task: '',
+        startTime: Math.round(startDate.getTime() / 1000),
+        endTime: Math.round(endDate.getTime() / 1000),
+        consumeTime: startTime - endTime,
+        performanceData: '100',
+        isInternal: false,
+        activityOn: date,
+        employeeId: id,
       })
-      .catch((err) => {
-        console.log(err);
-        enqueueSnackbar("Error occured", {
-          variant: "error",
-        });
+      .then((res) => {
+        setopen(false);
+        // refresh activities
+        axios
+          .post('/activity/getActivities', {
+            userId: id,
+            startTime: new Date(date.getFullYear(), date.getMonth(), 1),
+            endTime: new Date(date.getFullYear(), date.getMonth() + 1, 1),
+          })
+          .then((res) => {
+            setActivities(res.data.data, false);
+          });
       });
-    handleClose();
   };
+
   return (
     <>
       <Link
-        variant="body1"
+        variant="h6"
         sx={{
-          cursor: "pointer",
-          textAlign: "center",
+          cursor: 'pointer',
+          textAlign: 'center',
         }}
-        onClick={handleOpen}
+        onClick={() => setopen(true)}
       >
-        <AddIcon />
+        <IconButton color="primary" size="small">
+          <AddIcon />
+        </IconButton>
         Add Offline time
       </Link>
-      <Modal
-        open={modal}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-        sx={{
-          border: "none",
-        }}
-      >
-        <Box sx={style}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              bgcolor: "primary.lighter",
-              p: 2,
-            }}
-          >
-            <Typography variant="h4" color="primary">
-              Add Offline Time
-            </Typography>
-            <IconButton>
-              <CloseIcon onClick={handleClose} />
-            </IconButton>
-          </Box>
-          <Divider />
-          <Box
-            sx={{
-              px: 2,
-              py: 1,
-            }}
-          >
-            Offline time range will appear on your timeline. You'll be able to
-            delete or edit it there.
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                mt: 1,
-              }}
-            >
-              <TextField
-                hiddenLabel
-                id="filled-hidden-label-small"
-                placeholder="From"
-                variant="filled"
-                size="small"
-                onChange={handleStartChange}
-                sx={{
-                  width: "20%",
-                }}
-              />
-              -
-              <TextField
-                hiddenLabel
-                id="filled-hidden-label-small"
-                placeholder="To"
-                variant="filled"
-                size="small"
-                onChange={handleEndChange}
-                sx={{
-                  width: "20%",
-                }}
-              />
-            </Box>
-            Project
-            <Select
-              value={projectSelected}
-              onChange={handleChange}
-              displayEmpty
-              fullWidth
-              inputProps={{ "aria-label": "Without label" }}
-              sx={{
-                my: 1,
-              }}
-            >
-              {projects.map((project) => {
-                return (
-                  <MenuItem
-                    key={project._id + "-" + project?.client?._id}
-                    value={project._id + "-" + project?.client?._id}
-                  >
-                    {project.name}-{project?.client?.name}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-            {/* <TextField
-              disabled
-              id="filled-disabled"
-              label="Disabled"
-              defaultValue="Activity Name"
-              variant="filled"
-              size="large"
-              fullWidth
-            /> */}
-            <Box>
-              External
-              <Switch
-                onClick={(e) => {
-                  setInternal(e.target.checked);
-                }}
-              />
-              Internal
-            </Box>
-          </Box>
 
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "end",
-              bgcolor: "grey.200",
-              p: 2,
-            }}
-          >
-            <Button
-              variant="contained"
-              color="success"
-              sx={{
-                mr: 2,
-              }}
-              onClick={addTime}
-            >
-              Save Changes
-            </Button>
-            <Button variant="outlined" color="primary" onClick={handleClose}>
-              Cancel
-            </Button>
+      <Dialog sx={{ minWidth: 600, mt: 2 }} open={open}>
+        <DialogTitle>Add offline time</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            <Typography gutterBottom>
+              Offline time range will appear on your timeline. You'll be able to delete or edit it there.
+            </Typography>
+            <TextField
+              sx={{ mr: 2 }}
+              error={error}
+              value={startTime}
+              onChange={handleStartTimeChange}
+              label="Start time"
+              variant="outlined"
+            />
+            <TextField
+              error={error}
+              value={endTime}
+              onChange={handleEndTimeChange}
+              label="End time"
+              variant="outlined"
+            />
+
+            <Typography gutterBottom>e.g.: 7am – 9:10am or 17:30 – 20:00</Typography>
+          </DialogContentText>
+
+          {/* change project */}
+          <Box sx={{ minWidth: 120, mt: 2 }}>
+            <FormControl fullWidth>
+              <InputLabel>Project (Optional)</InputLabel>
+              <Select value={project} onChange={handleProjectChange} label="Project (Optional)">
+                <MenuItem value={'null'}>No Project</MenuItem>
+                {projects.map((project) => (
+                  <MenuItem key={project._id} value={project._id}>
+                    {project.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Box>
-        </Box>
-      </Modal>
+          {/* Note Change */}
+          <Box sx={{ minWidth: 120, mt: 2 }}>
+            <FormControl fullWidth>
+              <TextField label="Note(Optional)" multiline rows={4} value={note} onChange={handleNoteChange} />
+            </FormControl>
+          </Box>
+        </DialogContent>
+
+        <DialogActions>
+          <Button disabled={error} onClick={handleAddOfflineTime}>
+            Add offline time
+          </Button>
+          <Button onClick={handleCancel}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
-};
-
-export default OfflineTime;
+}

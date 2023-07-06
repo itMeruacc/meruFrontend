@@ -40,6 +40,7 @@ export default function Sidebar({ setclientId }) {
   const setClients = useStore((state) => state.setClients);
   // filtered after handlesearch
   const [filteredData, setfilteredData] = useState([]);
+  const [noClientMessage, setnoClientMessage] = useState('No Clients');
 
   // fetch the data
   useEffect(() => {
@@ -60,6 +61,10 @@ export default function Sidebar({ setclientId }) {
   const handleSearch = (e) => {
     // convert input text to lower case
     const lowerCase = e.target.value.toLowerCase();
+    if (lowerCase === '') {
+      setnoClientMessage('No Clients');
+    }
+
     const data = clients.clients.filter((client) => {
       // if no input the return the original
       if (lowerCase === '') {
@@ -70,6 +75,7 @@ export default function Sidebar({ setclientId }) {
       return client.name ? client.name.toLowerCase().includes(lowerCase) : client.name;
     });
     setfilteredData(data);
+    if (filteredData.length === 0 && lowerCase !== '') setnoClientMessage('Please enter valid data/Client name');
   };
 
   return (
@@ -131,7 +137,7 @@ export default function Sidebar({ setclientId }) {
                     />
                   ))
                 ) : (
-                  <Typography sx={{ mt: '25vh', textAlign: 'center' }}>No Clients</Typography>
+                  <Typography sx={{ mt: '25vh', textAlign: 'center' }}>{noClientMessage}</Typography>
                 )}
               </TreeView>
             </Box>

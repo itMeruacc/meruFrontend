@@ -1,16 +1,65 @@
 import React, { useState, useEffect, useContext } from 'react';
+// mui
 import { Column } from '@ant-design/plots';
-// import secondsToHms from "../../_helpers/secondsToHms";
 import { Box, Typography } from '@mui/material';
+// helpers
+import secondsToHms from '../../helpers/secondsToHms';
+// -------------------------------------------------------------------
 
-export default function Bar({ reports }) {
+const monthNames = [
+  1,
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+const xAxisFormatter = (x, diffDays) => {
+  if (diffDays > 31 && diffDays <= 120) {
+    // weekly
+    const ans = `Week ${x}`;
+    return ans;
+  }
+  if (diffDays > 120 && diffDays <= 365) {
+    // monthly
+    const arr = x.split('/');
+    const ans = `${monthNames[arr[0]]}, ${arr[1]}`;
+    return ans;
+  }
+  if (diffDays > 365) {
+    // yearly
+    const arr = x.split('/');
+    const ans = `${arr[1]}`;
+    return ans;
+  }
+  return x;
+};
+
+export default function Bar({ reports, date }) {
   const [totalHours, settotalHours] = useState(null);
   const [totalActCount, settotalCount] = useState(null);
   const [totalPData, settotalPData] = useState(null);
   const [totalPRate, settotalPRate] = useState(null);
   const [data, setData] = useState([]);
+  const [diffDays, setdiffDays] = useState(0);
 
   useEffect(() => {
+    // calculate no. of days between the dates
+    const dateOne = date[0];
+    const dateTwo = date[1];
+    const differenceDays = (new Date(dateTwo).getTime() - new Date(dateOne).getTime()) / (1000 * 3600 * 24);
+    setdiffDays(differenceDays);
+    console.log(differenceDays);
+    // ----------------------------------
+
     let t = 0;
     reports?.reports[0]?.byScreenshots?.forEach((ss) => {
       t += ss.actCount;
@@ -23,13 +72,14 @@ export default function Bar({ reports }) {
       return o;
     });
     setData(reports.reports[0]?.byDates);
+    // TODO - Remap the data to fill in for missing dates
     settotalHours(reports?.reports[0]?.total[0]?.totalHours);
     settotalPData(reports?.reports[0]?.total[0]?.avgPerformanceData);
     settotalCount(reports?.reports[0]?.total[0]?.actCount);
     settotalPRate(reports?.reports[0]?.total[0]?.avgPayRate);
     console.log(reports);
   }, [reports]);
-
+  console.log(data);
   const config = {
     data,
     xField: '_id',
@@ -41,20 +91,25 @@ export default function Bar({ reports }) {
         opacity: 0.6,
       },
     },
+    yAxis: {
+      visible: false,
+    },
     xAxis: {
+      formatter: (_id) => xAxisFormatter(_id, diffDays),
       label: {
         autoHide: true,
         autoRotate: false,
       },
     },
-    // meta: {
-    //   type: {
-    //     alias: "类别",
-    //   },
-    //   sales: {
-    //     alias: "销售额",
-    //   },
-    // },
+    meta: {
+      _id: {
+        formatter: (_id) => xAxisFormatter(_id, diffDays),
+      },
+      totalHours: {
+        alias: 'Total hours',
+        formatter: (hours) => secondsToHms(hours),
+      },
+    },
   };
 
   // const configCustom = {
@@ -82,7 +137,7 @@ export default function Bar({ reports }) {
       <Box>
         <Box sx={{ mb: 3 }}>
           <Typography variant="h3" sx={{ opacity: 0.6, textAlign: 'left' }}>
-            {totalHours}
+            {secondsToHms(totalHours)}
           </Typography>
           <Typography variant="h4" sx={{ opacity: 0.6, textAlign: 'left' }}>
             {Math.trunc(totalPData)}%

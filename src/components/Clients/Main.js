@@ -65,7 +65,7 @@ export default function Main({ clientId, setclientId }) {
               <ClientInfo setclientId={(id) => setclientId(id)} client={client} />
 
               {/* Client Time ///////////////////////// */}
-              {/* <ClientTime clientId={clientId} /> */}
+              <ClientTime clientId={clientId} />
             </Box>
           )}
         </Paper>

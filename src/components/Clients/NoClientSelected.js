@@ -28,7 +28,7 @@ export default function NoClientSelected() {
           height: '100%',
         }}
       >
-        <Box component="img" src="/svgs/project.svg" sx={{ width: 100, height: 70, backgroundColor: 'white' }} />
+        <Box component="img" src="/svgs/client.svg" sx={{ width: 100, height: 70, backgroundColor: 'white' }} />
         <Typography variant="h5">No Client Selected</Typography>
       </Paper>
     </Box>

@@ -2,7 +2,8 @@ import PropTypes from 'prop-types';
 import { set, sub } from 'date-fns';
 import { noCase } from 'change-case';
 import { faker } from '@faker-js/faker';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import axios from 'axios';
 // @mui
 import {
   Box,
@@ -30,7 +31,7 @@ import MenuPopover from '../../components/MenuPopover';
 
 const NOTIFICATIONS = [
   {
-    id: faker.datatype.uuid(),
+    _id: faker.datatype.uuid(),
     title: 'Your order is placed',
     description: 'waiting for shipping',
     avatar: null,
@@ -39,7 +40,7 @@ const NOTIFICATIONS = [
     isUnRead: true,
   },
   {
-    id: faker.datatype.uuid(),
+    _id: faker.datatype.uuid(),
     title: faker.name.findName(),
     description: 'answered to your comment on the Minimal',
     avatar: '/static/mock-images/avatars/avatar_2.jpg',
@@ -48,7 +49,7 @@ const NOTIFICATIONS = [
     isUnRead: true,
   },
   {
-    id: faker.datatype.uuid(),
+    _id: faker.datatype.uuid(),
     title: 'You have new message',
     description: '5 unread messages',
     avatar: null,
@@ -57,7 +58,7 @@ const NOTIFICATIONS = [
     isUnRead: false,
   },
   {
-    id: faker.datatype.uuid(),
+    _id: faker.datatype.uuid(),
     title: 'You have new mail',
     description: 'sent from Guido Padberg',
     avatar: null,
@@ -66,7 +67,7 @@ const NOTIFICATIONS = [
     isUnRead: false,
   },
   {
-    id: faker.datatype.uuid(),
+    _id: faker.datatype.uuid(),
     title: 'Delivery processing',
     description: 'Your order is being shipped',
     avatar: null,
@@ -77,11 +78,19 @@ const NOTIFICATIONS = [
 ];
 
 export default function NotificationsPopover() {
+  const ud = JSON.parse(localStorage.ud);
   const anchorRef = useRef(null);
 
-  const [notifications, setNotifications] = useState(NOTIFICATIONS);
+  const [notifications, setNotifications] = useState(ud.notifications ?? []);
 
   const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
+
+  // fetch notifications
+  useEffect(() => {
+    axios.get('/notify').then((res) => {
+      setNotifications(res.data.data);
+    });
+  }, []);
 
   const [open, setOpen] = useState(null);
 
@@ -104,16 +113,18 @@ export default function NotificationsPopover() {
 
   return (
     <>
-      <IconButton
-        ref={anchorRef}
-        color={open ? 'primary' : 'default'}
-        onClick={handleOpen}
-        sx={{ width: 40, height: 40 }}
-      >
-        <Badge badgeContent={totalUnRead} color="error">
-          <Iconify icon="eva:bell-fill" width={20} height={20} />
-        </Badge>
-      </IconButton>
+      <Tooltip title="Notifications">
+        <IconButton
+          ref={anchorRef}
+          color={open ? 'primary' : 'default'}
+          onClick={handleOpen}
+          sx={{ width: 40, height: 40 }}
+        >
+          <Badge badgeContent={totalUnRead} color="error">
+            <Iconify icon="eva:bell-fill" width={20} height={20} />
+          </Badge>
+        </IconButton>
+      </Tooltip>
 
       <MenuPopover
         open={Boolean(open)}
@@ -150,7 +161,7 @@ export default function NotificationsPopover() {
             }
           >
             {notifications.slice(0, 2).map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
+              <NotificationItem key={notification._id} notification={notification} />
             ))}
           </List>
 
@@ -163,7 +174,7 @@ export default function NotificationsPopover() {
             }
           >
             {notifications.slice(2, 5).map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
+              <NotificationItem key={notification._id} notification={notification} />
             ))}
           </List>
         </Scrollbar>
@@ -273,3 +284,5 @@ function renderContent(notification) {
     title,
   };
 }
+
+// title, desc, type, avatar

@@ -1,7 +1,15 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
-import { FormControl, DialogContentText, FormControlLabel, Autocomplete, Checkbox } from '@mui/material';
+import {
+  FormControl,
+  DialogContentText,
+  FormControlLabel,
+  Autocomplete,
+  Checkbox,
+  Select,
+  MenuItem,
+} from '@mui/material';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
@@ -19,13 +27,15 @@ import axios from 'axios';
 import { useSnackbar } from 'notistack';
 // import FileSaver from 'file-saver';
 // import { utils, writeFile } from 'xlsx';
+import FileSaver from 'file-saver';
 import PdfExport from './Export';
 
 export default function ReportsOptions({ reports, options }) {
+  const ud = JSON.parse(localStorage.ud);
   // for dialog open close
   const [open, setopen] = React.useState(false);
   // name of report
-  const [name, setname] = React.useState('Save Reports');
+  const [name, setname] = React.useState('');
   const [share, setshare] = React.useState(true);
   const [includeSS, setincludeSS] = React.useState(false);
   const [includePR, setincludePR] = React.useState(false);
@@ -33,7 +43,7 @@ export default function ReportsOptions({ reports, options }) {
   const [includeApps, setincludeApps] = React.useState(false);
   const [schedule, setschedule] = React.useState(false);
   const [interval, setinterval] = React.useState('Daily');
-  const [weeklyDay, setweeklyDay] = React.useState('Monday');
+  const [weeklyDay, setweeklyDay] = React.useState(1);
   const [dailyTime, setdailyTime] = React.useState(12);
   const [monthlyDate, setmonthlyDate] = React.useState(1);
   const { enqueueSnackbar } = useSnackbar();
@@ -193,57 +203,62 @@ export default function ReportsOptions({ reports, options }) {
   //       writeFile(wb, `${name}.xlsx`);
   //     } catch (err) {
   //       console.log(err);
-  //       enqueueSnackbar(err.message, { variant: 'error' });
+  //       enqueueSnackbar(err.message, { variant: 'error' },
+  // {
+  //   anchorOrigin: {
+  //     vertical: 'bottom',
+  //     horizontal: 'left',
+  //   },
+  // }
+  // );
   //     }
   //   };
 
   const scheduleEmailChildren = (
     <Box sx={{ display: 'flex', flexDirection: 'column', ml: 3 }}>
-      <TextField disabled={!schedule} id="email" label="Email" value={'email'} />
+      <TextField readOnly disabled id="email" label="Email" value={ud.email} />
       <Box sx={{ display: 'flex', flexDirection: 'row', mt: 2 }}>
-        <Autocomplete
-          disabled={!schedule}
-          value={interval}
-          onChange={(e, value) => setinterval(value)}
-          disablePortal
-          options={['Monthly', 'Weekly', 'Daily']}
-          sx={{ width: 300 }}
-          renderInput={(params) => <TextField {...params} label="Select interval" />}
-        />
+        <Select disabled={!schedule} value={interval} onChange={(e) => setinterval(e.target.value)}>
+          <MenuItem value={'Daily'}>Daily</MenuItem>
+          <MenuItem value={'Weekly'}>Weekly</MenuItem>
+          <MenuItem value={'Monthly'}>Monthly</MenuItem>
+        </Select>
         {interval === 'Weekly' && (
-          <Autocomplete
-            disabled={!schedule}
-            value={weeklyDay}
-            onChange={(e, value) => setweeklyDay(value)}
-            disablePortal
-            options={['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']}
-            sx={{ width: 300, ml: 1 }}
-            renderInput={(params) => <TextField {...params} label="Select Day" />}
-          />
+          <Select disabled={!schedule} sx={{ ml: 1 }} value={weeklyDay} onChange={(e) => setweeklyDay(e.target.value)}>
+            <MenuItem value={1}>Monday</MenuItem>
+            <MenuItem value={2}>Tuesday</MenuItem>
+            <MenuItem value={3}>Wednesday</MenuItem>
+            <MenuItem value={4}>Thursday</MenuItem>
+            <MenuItem value={5}>Friday</MenuItem>
+            <MenuItem value={6}>Saturday</MenuItem>
+            <MenuItem value={7}>Sunday</MenuItem>
+          </Select>
         )}
         {interval === 'Monthly' && (
-          <Autocomplete
+          <Select
             disabled={!schedule}
-            defaultValue={1}
-            onChange={(e, value) => setmonthlyDate(value)}
-            disablePortal
-            options={Array(28)
-              .fill()
-              .map((x, i) => i + 1)}
-            sx={{ width: 300, ml: 1 }}
-            renderInput={(params) => <TextField {...params} label="Select date" />}
-          />
+            sx={{ ml: 1 }}
+            value={monthlyDate}
+            onChange={(e) => setmonthlyDate(e.target.value)}
+          >
+            {Array(28)
+              .fill(0)
+              .map((x, i) => (
+                <MenuItem key={i + 1} value={i + 1}>
+                  {i + 1}
+                </MenuItem>
+              ))}
+          </Select>
         )}
-        <Autocomplete
-          disabled={!schedule}
-          value={dailyTime}
-          defaultValue="12:00 am"
-          onChange={(e, value) => setdailyTime(value)}
-          disablePortal
-          options={[]}
-          sx={{ width: 300, ml: 1 }}
-          renderInput={(params) => <TextField {...params} label="Select Time" />}
-        />
+        <Select disabled={!schedule} sx={{ ml: 1 }} value={dailyTime} onChange={(e) => setdailyTime(e.target.value)}>
+          {Array(23)
+            .fill(0)
+            .map((x, i) => (
+              <MenuItem key={i + 1} value={i + 1}>
+                {`${i + 1}:00`}
+              </MenuItem>
+            ))}
+        </Select>
       </Box>
     </Box>
   );
@@ -273,28 +288,76 @@ export default function ReportsOptions({ reports, options }) {
   );
 
   const handleSave = () => {
-    console.log(reports);
+    // making cronString
+    let cronString = '0 * * * *';
+    if (interval === 'Monthly') cronString = `0 ${dailyTime} ${monthlyDate} * *`;
+    if (interval === 'Weekly') cronString = `0 ${dailyTime} * * ${weeklyDay}`;
+    if (interval === 'Daily') cronString = `0 ${dailyTime} * * *`;
+
     const data = {
       schedule,
+      cronString,
       scheduleType: [interval, monthlyDate, dailyTime],
-      scheduledEmail: 'email',
+      scheduledEmail: ud.email,
       share,
+      options,
+      url,
       includeSS,
       includeAL,
       includePR,
       includeApps,
       reports: reports.reports,
-      url,
-      name,
-      options,
+      name: name === '' ? `${ud.firstName} ${ud.lastName}` : name,
     };
+
     axios.post('/report/save', data).then((res) => {
       console.log(res);
       setopen(!open);
     });
     if (share) {
       navigator.clipboard.writeText(`${window.location.origin}/reports/sharedReports/${url}`);
-      enqueueSnackbar('link copied', { variant: 'success' });
+      enqueueSnackbar('link copied', {
+        variant: 'success',
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal: 'left',
+        },
+      });
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    try {
+      const data = {
+        reports: reports.reports,
+        url: uuidv4(),
+        name,
+        options,
+      };
+      const savedData = await axios.post('/report/save', data);
+      window.open(`${window.location.origin}/downloadReportPdf/${savedData.data.data.url}`, '_blank');
+      axios
+        .get(`/report/download/${savedData.data.data.url}`, {
+          responseType: 'arraybuffer',
+          headers: {
+            Accept: 'application/pdf',
+          },
+        })
+        .then((res) => {
+          FileSaver.saveAs(new Blob([res.data], { type: 'application/pdf' }), `${name}.pdf`);
+        });
+    } catch (err) {
+      console.log(err);
+      enqueueSnackbar(
+        err.message,
+        { variant: 'error' },
+        {
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'left',
+          },
+        }
+      );
     }
   };
 
@@ -302,7 +365,9 @@ export default function ReportsOptions({ reports, options }) {
     <>
       {/* {expdf ? <PdfExport options={options} /> : ''} */}
       <div style={{ marginRight: '2.5%' }}>
-        <Button variant="outlined">Export pdf</Button>
+        <Button onClick={handleDownloadPdf} variant="outlined">
+          Export pdf
+        </Button>
         <Button variant="outlined" sx={{ ml: 1 }}>
           Export excel
         </Button>
@@ -340,7 +405,7 @@ export default function ReportsOptions({ reports, options }) {
                 readOnly: true,
               }}
             />
-            {/*  */}
+            {/* save and share options */}
             <Box>
               <FormControlLabel
                 label="Share Report"

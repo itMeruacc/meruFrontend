@@ -13,88 +13,68 @@ import MonthlyHours from './monthlyHours';
 import WeeklyHours from './weeklyHours';
 import TodayHours from './todayHours';
 
-// contexts
+// helpers
+import secondsToHms from '../../helpers/secondsToHms';
 
 export default function Overview({ date, activities }) {
   const [totalHours, settotalHours] = useState(0);
   const [todayHours, settodayHours] = useState(0);
   const [monthlyHours, setmonthlyHours] = useState(0);
   const [weeklyHours, setweeklyHours] = useState(0);
-
   const [value, setValue] = React.useState('1');
-  const [apps, setApps] = React.useState([]);
-  const [appsMap, setAppsMap] = React.useState([]);
+  const [tasks, settasks] = React.useState([]);
+  const [apps, setapps] = React.useState([]);
+  const [appsMap, setappsMap] = React.useState([]);
 
   // filter day selected day wise and internal and external
   useEffect(() => {
     // get date filtered acts
-
-    const arr = activities.filter((act) => new Date(act.activityOn) <= date);
+    const arr = activities.filter((act) => {
+      const date1 = new Date(act.activityOn);
+      return dayjs(date1).isSame(date, 'day');
+    });
 
     // traverse thru acts to get time data
     let total = 0;
     let month = 0;
     let week = 0;
     let today = 0;
-    arr.forEach((act) => {
+    activities.forEach((act) => {
       const date1 = new Date(act.activityOn);
-      const date2 = date;
       total += act.consumeTime;
-      if (date1.toDateString() === date2.toDateString()) {
-        today += act.endTime - act.startTime;
-      } else if (dayjs(date1).isSame(date, 'week')) {
-        week += act.endTime - act.startTime;
-      } else if (dayjs(date1).isSame(date, 'month')) {
-        month += act.endTime - act.startTime;
-      }
+      if (dayjs(date1).isSame(date, 'day')) today += act.consumeTime;
+      if (dayjs(date1).isSame(date, 'week')) week += act.consumeTime;
+      if (dayjs(date1).isSame(date, 'month')) month += act.consumeTime;
     });
     settotalHours(total);
     setweeklyHours(week);
     setmonthlyHours(month);
     settodayHours(today);
+
+    // group by tasks(note)
+    const groupByTasks = arr.reduce((group, act) => {
+      const { note } = act;
+      group[note] = group[note] ?? { consumeTime: 0 };
+      group[note].consumeTime += act.consumeTime;
+      return group;
+    }, {});
+    console.log(groupByTasks);
+    settasks(groupByTasks);
+
+    // group by task(projects)
+    // const groupByTasks = arr.reduce((group, act) => {
+    //   const { project } = act;
+    //   group[project] = group[project] ?? { consumeTime: 0 };
+    //   group[project].consumeTime += act.consumeTime;
+    //   return group;
+    // }, {});
+    // console.log(groupByTasks);
+    // settasks(groupByTasks);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activities, date]);
 
-  // getting DailyHours
-  //   useEffect(() => {
-  //     let Data = [];
-  //     Data = days?.filter((day) => day.date === date);
-  //     if (Data && Data.length > 0) {
-  //       setTodaysHours(Data[0].dailyHours);
-  //     } else {
-  //       setTodaysHours(0);
-  //     }
-  //   }, [date]);
-
-  //   // Getting apps and URL's
-  //   useEffect(() => {
-  //     if (activities !== undefined && activities.length > 0) {
-  //       const arr = [];
-  //       const map = new Map();
-  //       const finalArray = [];
-
-  //       activities.forEach((activity) => {
-  //         activity.screenshots.forEach((screenshot) => {
-  //           arr.push(screenshot.title);
-  //           if (map.get(screenshot.title)) {
-  //             map.set(screenshot.title, map.get(screenshot.title) + 1);
-  //           } else {
-  //             map.set(screenshot.title, 1);
-  //           }
-  //         });
-  //       });
-  //       map.forEach((value, key) => {
-  //         finalArray.push({
-  //           app: key,
-  //           usage: value,
-  //         });
-  //       });
-  //       setApps(arr);
-  //       setAppsMap(finalArray);
-  //     }
-  //   }, [activities]);
-
-  // toggling tasks and apps
+  // toggling tasks and apps(panels)
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -161,17 +141,16 @@ export default function Overview({ date, activities }) {
                     justifyContent: 'space-between',
                   }}
                 >
-                  {/* {dateObj.format('Do MMMM YYYY')} */}
-                  <TabList onChange={handleChange} aria-label="lab API tabs example">
+                  <TabList onChange={handleChange}>
                     <Tab label="Tasks" value="1" />
-                    <Tab label="Apps & URL's" value="2" />
+                    {/* <Tab label="Apps & URL's" value="2" /> */}
                   </TabList>
                 </Typography>
               </Box>
               <TabPanel value="1">
                 <Box overflow={'auto'} sx={{ height: 145 }}>
-                  {activities &&
-                    activities.map((activity, index) => (
+                  {tasks &&
+                    Object.keys(tasks).map((task, index) => (
                       <div key={index}>
                         <a
                           style={{
@@ -182,16 +161,15 @@ export default function Overview({ date, activities }) {
                             textDecoration: 'none',
                             color: 'black',
                           }}
-                          key={activity._id}
-                          href={`#${activity._id}`}
+                          key={index}
                         >
                           <Typography sx={{ mb: 1.5 }} variant="h5" color="text.primary">
-                            {activity?.project?.name}
+                            {task === 'undefined' ? 'No Project' : task}
                             <br />
-                            <Typography color="text.primary">{activity.task}</Typography>
+                            {/* <Typography color="text.primary">{project}</Typography> */}
                           </Typography>
                           <Typography variant="h4" component="div">
-                            {(activity.startTime, activity.endTime)}
+                            {secondsToHms(tasks[task].consumeTime)}
                           </Typography>
                         </a>
                         <Divider sx={{ backgroundColor: 'primary.dark' }} />

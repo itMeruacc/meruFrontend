@@ -21,7 +21,7 @@ const modalStyle = {
   p: 4,
 };
 
-export default function ChangeClient({ project }) {
+export default function ChangeProjectLeader({ project }) {
   const [projectLeader, setprojectLeader] = useState(null);
   const [userOptions, setuserOptions] = useState([]);
   const [open, setopen] = useState(false);
@@ -35,7 +35,8 @@ export default function ChangeClient({ project }) {
   useEffect(() => {
     axios.get(`/employee/all`).then((res) => {
       if (res.status === 200) {
-        setuserOptions(res.data.data);
+        console.log(res.data.data);
+        setuserOptions(res.data.data.filter((user) => user.role === 'projectLeader'));
       }
     });
   }, [open]);
@@ -93,7 +94,7 @@ export default function ChangeClient({ project }) {
       >
         <Box sx={modalStyle}>
           <Typography variant="h6" component="h2">
-            Change Client
+            Change Project Leader
           </Typography>
           <Autocomplete
             disablePortal

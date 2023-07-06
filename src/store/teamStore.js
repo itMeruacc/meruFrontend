@@ -1,16 +1,17 @@
 import create from 'zustand';
 
 const useStore = create((set) => ({
-  teams: {
-    teams: [],
+
+  users: {
+    users: [],
     loader: true,
-    error: false,
   },
 
-  setTeams: (teams, loader) =>
+  setUsers: (users, loader) =>
     set(() => ({
-      teams: {
-        teams,
+      users: {
+        users,
+
         loader,
       },
     })),

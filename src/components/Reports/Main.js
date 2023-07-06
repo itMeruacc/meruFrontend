@@ -3,9 +3,8 @@ import { useSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import dayjs from 'dayjs';
-
 // mui
-import { Tabs, Tab, Typography, Box, Button } from '@mui/material';
+import { Tabs, Tab, Typography, Box, Button, Divider } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 // components
 import DatePicker from './DatePicker';
@@ -16,14 +15,21 @@ import SelectClients from './SelectClients';
 import SelectGroup from './SelectGroup';
 import ReportsOptions from './ReportsOptions';
 import SavedR from './SavedR';
+import ByEp from './ByEp';
+import ByPr from './ByPr';
+import ByCl from './ByCL';
+import ByDetailed from './ByDetailed';
+import ByAppsUrl from './ByApp&Url';
 
-// contexts and apis
+// --------------------------------------------------------------
 
-// import ByEp from './ByEp';
-// import ByPr from './ByPr';
-// import ByCl from './ByCL';
-// import ByDetailed from './ByDetailed';
-// import ByAppsUrl from './ByApp&Url';
+const groupReports = (group, reports) => {
+  if (group[0].value === 'E') return <ByEp sx={{ height: 'auto' }} reports={reports} />;
+  if (group[0].value === 'P') return <ByPr sx={{ height: 'auto' }} reports={reports} />;
+  if (group[0].value === 'C') return <ByCl sx={{ height: 'auto' }} reports={reports} />;
+  if (group[0].value === 'D') return <ByDetailed sx={{ height: 'auto' }} reports={reports} />;
+  if (group[0].value === 'A') return <ByAppsUrl sx={{ height: 'auto' }} reports={reports} />;
+};
 
 // tab panels
 function TabPanel(props) {
@@ -66,9 +72,12 @@ export default function Main() {
   const [employees, setemployees] = React.useState([]);
   const [clients, setclients] = React.useState([]);
   const [projects, setprojects] = React.useState([]);
-  const [date, setdate] = React.useState([null, null]);
+  const [date, setdate] = React.useState([dayjs(), dayjs()]);
   const [group, setgroup] = React.useState(null);
   const [value, setValue] = React.useState(0);
+  const [saveReportOptions, setsaveReportOptions] = React.useState([]);
+
+  console.log(reports);
 
   // tabs and tab panels
   const handleChange = (event, newValue) => {
@@ -77,11 +86,11 @@ export default function Main() {
 
   const handleGenerateReports = async () => {
     try {
-      const dateOne = date[0] ? date[0].format('DD/MM/YYYY') : null;
-      const dateTwo = date[1] ? date[1].format('DD/MM/YYYY') : null;
-      const userIds = employees.length ? employees : null;
-      const projectIds = projects.length ? projects : null;
-      const clientIds = clients.length ? clients : null;
+      const dateOne = date[0] ? new Date(date[0].format('MM/DD/YYYY')) : null;
+      const dateTwo = date[1] ? new Date(date[1].format('MM/DD/YYYY')) : null;
+      const userIds = employees;
+      const projectIds = projects;
+      const clientIds = clients;
       let groupBy = '';
       group.forEach((g) => {
         groupBy = groupBy.concat(g.value);
@@ -94,15 +103,27 @@ export default function Main() {
         dateTwo,
         groupBy,
       };
+      console.log(options);
+
+      // to send to save report module
+      setsaveReportOptions(options);
 
       // call reports here
-      console.log(dayjs(-1));
-
+      // console.log(dayjs(-1));
       axios.post('/report', { ...options }).then((res) => {
         setreports({ reports: res.data.data, loader: false });
       });
     } catch (err) {
-      enqueueSnackbar(err.message, { variant: 'error' });
+      enqueueSnackbar(
+        err.message,
+        { variant: 'error' },
+        {
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'left',
+          },
+        }
+      );
     }
   };
 
@@ -122,10 +143,9 @@ export default function Main() {
           }}
         />
         <SelectEmployees
-          options={[]}
           setemployees={(newValue) => {
-            if (!newValue.length) {
-              setemployees(null);
+            if (!newValue) {
+              setemployees([]);
             } else {
               setemployees(newValue);
             }
@@ -133,20 +153,20 @@ export default function Main() {
         />
 
         <SelectClients
-          options={[]}
           setclients={(newValue) => {
-            if (!newValue.length) {
-              setclients(null);
+            console.log(newValue);
+            if (!newValue) {
+              setclients([]);
             } else {
               setclients(newValue);
             }
           }}
         />
         <SelectProjects
-          options={[]}
           setprojects={(newValue) => {
-            if (!newValue.length) {
-              setprojects(null);
+            console.log(newValue);
+            if (!newValue) {
+              setprojects([]);
             } else {
               setprojects(newValue);
             }
@@ -161,34 +181,29 @@ export default function Main() {
           <Button onClick={handleGenerateReports} variant="contained" endIcon={<SendIcon />}>
             Generate Reports
           </Button>
-          {!reports.loader ? <ReportsOptions reports={reports} options={[]} /> : null}
+          {!reports.loader && reports.reports[0].total.length ? (
+            <ReportsOptions reports={reports} options={saveReportOptions} />
+          ) : null}
         </Box>
-        {!reports.loader ? (
+        {!reports.loader && reports.reports[0].total.length ? (
           <>
-            <Graphs reports={reports} style={{ margin: 10 }} />
-            {/* <Divider /> */}
-
-            {/* {group.filter((grp) => grp.value === 'E').length !== 0 ? (
-              <ByEp sx={{ height: 'auto' }} reports={reports} />
-            ) : group.filter((grp) => grp.value === 'P').length !== 0 ? (
-              <ByPr sx={{ height: 'auto' }} reports={reports} />
-            ) : group.filter((grp) => grp.value === 'C').length !== 0 ? (
-              <ByCl sx={{ height: 'auto' }} reports={reports} />
-            ) : group.filter((grp) => grp.value === 'D').length !== 0 ? (
-              <ByDetailed sx={{ height: 'auto' }} reports={reports} />
-            ) : group.filter((grp) => grp.value === 'A').length !== 0 ? (
-              <ByAppsUrl sx={{ height: 'auto' }} reports={reports} />
-            ) : (
-              ''
-            )} */}
+            <Graphs date={date} reports={reports} style={{ margin: 10 }} />
+            <Divider />
+            {groupReports(group, reports)}
           </>
         ) : (
-          <></>
+          <>
+            <Box sx={{ display: 'flex', flexDirection: 'row', m: 10 }}>
+              <Typography varinat="h1" sx={{ fontWeight: 'bold' }}>
+                No tracked time found matching the criteria
+              </Typography>
+            </Box>
+          </>
         )}
       </TabPanel>
       {/* saved reports panel */}
       <TabPanel value={value} index={1}>
-        {/* <SavedR /> */}
+        <SavedR />
       </TabPanel>
     </Box>
   );

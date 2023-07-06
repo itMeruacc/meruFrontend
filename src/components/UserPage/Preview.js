@@ -1,4 +1,8 @@
 import React from 'react';
+import axios from 'axios';
+import { useSnackbar } from 'notistack';
+
+// mui
 import {
   Box,
   Backdrop,
@@ -9,11 +13,27 @@ import {
   CardContent,
   Typography,
   Checkbox,
+  IconButton,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
+// store
+import useStore from '../../store/activityStore';
+
+// helpers
+import toHhMm from '../../helpers/hhMm';
+
+// -----------------------------------------------------------------
+
 export default function Preview(props) {
+  const setActivities = useStore((state) => state.setActivities);
+
+  // notistack
+  const { id, date } = props;
+  const { enqueueSnackbar } = useSnackbar();
+
   const [open, setOpen] = React.useState(false);
+
   const handleClose = () => {
     setOpen(false);
   };
@@ -21,7 +41,59 @@ export default function Preview(props) {
     setOpen(!open);
   };
 
-  const delSs = async (activityId, screenshotId) => {};
+  const handleDeleteSs = async (screenshotId) => {
+    axios
+      .delete('/activity/screenshot', {
+        data: { screenshotId },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          enqueueSnackbar(
+            'Screenshot deleted',
+            { variant: 'success' },
+            {
+              anchorOrigin: {
+                vertical: 'bottom',
+                horizontal: 'left',
+              },
+            }
+          );
+
+          // refresh activities
+          axios
+            .post('/activity/getActivities', {
+              userId: id,
+              startTime: new Date(date.getFullYear(), date.getMonth(), 1),
+              endTime: new Date(date.getFullYear(), date.getMonth() + 1, 1),
+            })
+            .then((res) => {
+              setActivities(res.data.data, false);
+            });
+        } else
+          enqueueSnackbar(
+            'Some Error Occured',
+            { variant: 'error' },
+            {
+              anchorOrigin: {
+                vertical: 'bottom',
+                horizontal: 'left',
+              },
+            }
+          );
+      })
+      .catch((error) => {
+        enqueueSnackbar(
+          'Some Error Occured',
+          { variant: 'error' },
+          {
+            anchorOrigin: {
+              vertical: 'bottom',
+              horizontal: 'left',
+            },
+          }
+        );
+      });
+  };
   // console.log(props.selectedSs);
   // const isChecked = (e) => {
   //   return !props.selectedSs.indexOf(e.target.value) !== -1;
@@ -29,7 +101,7 @@ export default function Preview(props) {
 
   return (
     <>
-      <Card sx={{ width: 260, maxWidth: 260, m: 1.8 }}>
+      <Card sx={{ width: 240, maxWidth: 240, m: 1, ml: 0.5 }}>
         <Tooltip title={`${props.title}`} placement="top" followCursor>
           <CardContent
             sx={{
@@ -38,6 +110,7 @@ export default function Preview(props) {
               mt: -2,
               ml: -1.5,
               background: '#A5B9D9',
+              height: '45px',
               maxHeight: '50px',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
@@ -46,13 +119,13 @@ export default function Preview(props) {
           >
             {/* use ref to checkbox, perform onClick */}
             <span>
-              <Checkbox
+              {/* <Checkbox
                 value={props.ssId}
                 aria-labelledby={props.ssId}
                 checked={props.selectedSs.indexOf(props.ssId) !== -1}
                 sx={{ pt: 0, pl: 0, pr: 0.5 }}
                 onChange={(e) => props.setSelectedSs(e.target.checked, props.ssId)}
-              />
+              /> */}
 
               <Box
                 sx={{
@@ -70,17 +143,21 @@ export default function Preview(props) {
               </Box>
             </span>
             <DeleteIcon
-              sx={{ float: 'right' }}
+              sx={{ float: 'right', cursor: 'pointer' }}
               fontSize="small"
               onClick={(e) => {
-                delSs(props.act._id, props.ssId);
-                props.setSelectedSs(false, props.act._id, props.ssId);
+                handleDeleteSs(props.ssId);
+                // props.setSelectedSs(false, props.act._id, props.ssId);
               }}
             />
           </CardContent>
         </Tooltip>
 
-        <Tooltip title={`${props.activityAt}, ${Math.ceil(props.performanceData)}%`} placement="top" followCursor>
+        <Tooltip
+          title={`${toHhMm(props.activityAt)}, ${Math.ceil(props.performanceData)}%`}
+          placement="top"
+          followCursor
+        >
           <CardActionArea onClick={handleToggle}>
             <CardMedia component="img" height="140" image={`${props.preview}`} alt="green iguana" />
           </CardActionArea>
@@ -95,7 +172,7 @@ export default function Preview(props) {
           }}
         >
           <Typography color="text.primary" gutterBottom variant="subtitle2">
-            {`${Math.ceil(props.performanceData)}%, Taken at ${props.activityAt}`}
+            {`${Math.ceil(props.performanceData)}%, Taken at ${toHhMm(props.activityAt)}`}
           </Typography>
         </CardContent>
       </Card>

@@ -7,6 +7,8 @@ import dayjs from 'dayjs';
 const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function Calendar({ date, setdate, activities }) {
+  const ud = JSON.parse(localStorage.ud);
+  const weekStartday = ud.teamConfig.weekStartDay;
   const [value, setvalue] = useState(date.getDate());
   const [progressValues, setprogressValues] = useState([...Array(dayjs(date).daysInMonth())].fill(0));
 
@@ -19,23 +21,21 @@ export default function Calendar({ date, setdate, activities }) {
 
   // to calculate only on act change(called when month changes)
   useEffect(() => {
-    console.log(activities);
     const arr = [...Array(dayjs(date).daysInMonth() + 1)].fill(0);
     activities.forEach((act) => {
       arr[new Date(act.activityOn).getDate()] += act.consumeTime;
     });
-    setprogressValues(arr);
     console.log(arr);
+    setprogressValues(arr);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activities]);
 
-  const handleClick = (e) => {
-    setvalue(Number(e.target.value));
-    setdate((prev) => new Date(prev.getFullYear(), prev.getMonth(), Number(e.target.value)));
+  const handleClick = (key) => {
+    console.log(key);
+    setvalue(Number(key));
+    setdate((prev) => new Date(prev.getFullYear(), prev.getMonth(), Number(key)));
   };
-
-  //   {Array[24].forEach((index, i) => progress(50, index))}
 
   return (
     <>
@@ -63,7 +63,7 @@ export default function Calendar({ date, setdate, activities }) {
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
-                borderLeft: day === 0 ? '3px solid black' : '0.5px solid black',
+                borderLeft: day === weekStartday ? '3px solid black' : '0.5px solid black',
                 flex: 1,
                 minWidth: 0,
               }}
@@ -79,26 +79,31 @@ export default function Calendar({ date, setdate, activities }) {
               >
                 {days[day]}
               </Typography>
-              <Button
+              <Box
                 sx={{
                   cursor: 'pointer',
-                  maxWidth: '50px',
-                  maxHeight: '50px',
-                  minWidth: '30px',
-                  minHeight: '30px',
-                  backgroundColor: key === value && 'blue',
-                  mb: 0.5,
+                  padding: ' 25% 0',
+                  textAlign: 'center',
+                  height: 40,
+                  backgroundColor: key === value && 'primary.light',
                 }}
                 value={key}
-                onClick={(e) => {
-                  handleClick(e);
+                onClick={() => {
+                  handleClick(key);
                 }}
                 vlaue={element}
                 aria-label="left aligned"
               >
                 {key}
-              </Button>
-              <LinearProgress variant="determinate" value={progressValues[key]} />
+              </Box>
+              {/* value calculated by 5h(18k seconds) */}
+              <LinearProgress
+                size={20}
+                thickness={20}
+                sx={{ height: 6 }}
+                variant="determinate"
+                value={(progressValues[key] / 18000) * 100 > 100 ? 100 : (progressValues[key] / 18000) * 100}
+              />
             </Box>
           );
         })}

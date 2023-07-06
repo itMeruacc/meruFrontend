@@ -39,7 +39,7 @@ function a11yProps(index) {
   };
 }
 
-export default function Graphs({ reports }) {
+export default function Graphs({ reports, date }) {
   const [value, setValue] = React.useState(0);
   console.log(reports);
 
@@ -60,7 +60,7 @@ export default function Graphs({ reports }) {
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
-          <Bars reports={reports} />
+          <Bars date={date} reports={reports} />
         </TabPanel>
         <TabPanel value={value} index={1}>
           <EmployeesCharts reports={reports} />

@@ -13,6 +13,13 @@ const useStore = create((set) => ({
         loader,
       },
     })),
+  // removeActivity: (id) =>
+  //   set((state) => ({
+  //     activities: {
+  //       activities: state.activities.activities.filter((act) => act._id !== id),
+  //       loader: false,
+  //     },
+  //   })),
   //   removePokemon: (id) =>
   //     set((state) => ({
   //       pokemons: state.pokemons.filter((pokemon) => pokemon.id !== id),
